@@ -1,0 +1,84 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,300..800;1,300..800&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root, [data-theme="minimal-warm"] {
+  --theme-bg: #FDFCFB;
+  --theme-card: #FFFFFF;
+  --theme-sidebar: #F9F7F4;
+  --theme-text: #1A1A1A;
+  --theme-muted: #8C8984;
+  --theme-border: #E5E2DE;
+  --theme-hover: #F2F0ED;
+  --theme-button-bg: #1A1A1A;
+  --theme-button-text: #FFFFFF;
+}
+
+[data-theme="slate-dark"] {
+  --theme-bg: #0B0F19;
+  --theme-card: #1F2937;
+  --theme-sidebar: #111827;
+  --theme-text: #F3F4F6;
+  --theme-muted: #9CA3AF;
+  --theme-border: #374151;
+  --theme-hover: #2D3748;
+  --theme-button-bg: #FFFFFF;
+  --theme-button-text: #111827;
+}
+
+[data-theme="vintage-sepia"] {
+  --theme-bg: #F4EFEA;
+  --theme-card: #FCFAF7;
+  --theme-sidebar: #EAE2D8;
+  --theme-text: #2F241D;
+  --theme-muted: #8C7769;
+  --theme-border: #DCD5C9;
+  --theme-hover: #DFD8CC;
+  --theme-button-bg: #2F241D;
+  --theme-button-text: #FCFAF7;
+}
+
+[data-theme="industrial-mono"] {
+  --theme-bg: #FFFFFF;
+  --theme-card: #FFFFFF;
+  --theme-sidebar: #FFFFFF;
+  --theme-text: #000000;
+  --theme-muted: #5F5F5F;
+  --theme-border: #000000;
+  --theme-hover: #EEEEEE;
+  --theme-button-bg: #000000;
+  --theme-button-text: #FFFFFF;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  height: 100%;
+}
+
+body {
+  background-color: var(--theme-bg);
+  color: var(--theme-text);
+  font-family: var(--font-sans);
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+  overflow: -moz-scrollbars-none !important;
+}
+

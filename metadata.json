@@ -1,0 +1,6 @@
+{
+  "name": "RAN WorkHub",
+  "description": "Enterprise Employee, Team, Project, and Operations Management System powered by AI Analytics for RANBIDGE Solutions Private Limited.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
