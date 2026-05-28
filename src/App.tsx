@@ -4,9 +4,11 @@
  */
 
 import React, { useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
 import { WorkspaceProvider, useWorkspace } from './context/WorkspaceContext';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import LandingPage from './components/LandingPage';
 import DashboardView from './components/DashboardView';
 import EmployeesView from './components/EmployeesView';
 import TeamsView from './components/TeamsView';
@@ -22,6 +24,7 @@ import SettingsView from './components/SettingsView';
 
 function WorkspaceLayout() {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { currentTheme } = useWorkspace();
 
   const renderActiveView = () => {
@@ -55,23 +58,36 @@ function WorkspaceLayout() {
     }
   };
 
-  return (
-    <div data-theme={currentTheme} className="flex h-screen bg-[var(--theme-bg)] text-[var(--theme-text)] overflow-hidden font-sans antialiased transition-colors duration-250">
-      {/* Navigation Panel */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+  if (!isLoggedIn) {
+    return <LandingPage onLogin={() => setIsLoggedIn(true)} />;
+  }
 
-      {/* Primary Workspace Panel */}
-      <div className="flex-1 flex flex-col min-w-0 bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-250">
-        <Header activeTab={activeTab} />
-        
-        {/* Main View Port */}
-        <main className="flex-1 overflow-y-auto p-6 bg-[var(--theme-bg)] text-[var(--theme-text)] scrollbar-thin transition-colors duration-250">
-          <div className="max-w-7xl mx-auto">
-            {renderActiveView()}
-          </div>
-        </main>
-      </div>
-    </div>
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key="workspace"
+        data-theme={currentTheme}
+        className="flex h-screen bg-[var(--theme-bg)] text-[var(--theme-text)] overflow-hidden font-sans antialiased transition-colors duration-250"
+        initial={{ opacity: 0, scale: 0.98 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      >
+        {/* Navigation Panel */}
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+        {/* Primary Workspace Panel */}
+        <div className="flex-1 flex flex-col min-w-0 bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-250">
+          <Header activeTab={activeTab} />
+          
+          {/* Main View Port */}
+          <main className="flex-1 overflow-y-auto p-6 bg-[var(--theme-bg)] text-[var(--theme-text)] scrollbar-thin transition-colors duration-250">
+            <div className="max-w-7xl mx-auto">
+              {renderActiveView()}
+            </div>
+          </main>
+        </div>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
