@@ -889,48 +889,7 @@ export const INITIAL_KPIS: PerformanceKPI[] = [
   }
 ];
 
-export const INITIAL_DOCUMENTS: CompanyDocument[] = [
-  {
-    id: "DOC-701",
-    name: "RANBIDGE_Corporate_Bylaws_2026.pdf",
-    category: "Agreements",
-    path: "/documents/corporate_bylaws.pdf",
-    size: "1.4 MB",
-    uploader: "Rajesh Kumar",
-    uploadedAt: "2026-01-05",
-    version: "1.2"
-  },
-  {
-    id: "DOC-702",
-    name: "Employee_Conduct_Policy_RANBIDGE.pdf",
-    category: "Employee Records",
-    path: "/documents/conduct_policy.pdf",
-    size: "640 KB",
-    uploader: "Priya Sharma",
-    uploadedAt: "2026-01-12",
-    version: "1.0"
-  },
-  {
-    id: "DOC-703",
-    name: "SBI_Portal_API_Gateway_Specs_v2.pdf",
-    category: "Project files",
-    path: "/documents/sbi_specs.pdf",
-    size: "4.1 MB",
-    uploader: "Amit Patel",
-    uploadedAt: "2026-02-14",
-    version: "2.1"
-  },
-  {
-    id: "DOC-704",
-    name: "ISO27001_Audit_Checklist_RANBIDGE.xlsx",
-    category: "Reports",
-    path: "/documents/iso_audit.xlsx",
-    size: "820 KB",
-    uploader: "Karan Malhotra",
-    uploadedAt: "2026-05-18",
-    version: "1.0"
-  }
-];
+export const INITIAL_DOCUMENTS: CompanyDocument[] = [];
 
 export const INITIAL_ANNOUNCEMENTS: Announcement[] = [
   {
