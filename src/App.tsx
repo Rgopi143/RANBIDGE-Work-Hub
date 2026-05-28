@@ -73,7 +73,7 @@ function WorkspaceLayout() {
         transition={{ duration: 0.5, ease: 'easeOut' }}
       >
         {/* Navigation Panel */}
-        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+        <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} onLogout={() => setIsLoggedIn(false)} />
 
         {/* Primary Workspace Panel */}
         <div className="flex-1 flex flex-col min-w-0 bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-250">

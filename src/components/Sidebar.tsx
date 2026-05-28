@@ -20,15 +20,17 @@ import {
   Megaphone,
   Settings,
   ShieldCheck,
-  Zap
+  Zap,
+  LogOut
 } from 'lucide-react';
 
 interface SidebarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  onLogout: () => void;
 }
 
-export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
+export default function Sidebar({ activeTab, setActiveTab, onLogout }: SidebarProps) {
   const { currentRole, currentUser } = useWorkspace();
 
   // Menu item structure with role locks
@@ -105,6 +107,17 @@ export default function Sidebar({ activeTab, setActiveTab }: SidebarProps) {
           );
         })}
       </nav>
+
+      {/* Logout Button */}
+      <div className="px-3 py-2 border-t border-[var(--theme-border)] transition-colors duration-250">
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center space-x-3 px-3.5 py-2 rounded-sm text-xs font-medium cursor-pointer transition-all text-red-400 hover:text-red-300 hover:bg-red-500/10"
+        >
+          <LogOut className="h-4 w-4 shrink-0" />
+          <span>Logout</span>
+        </button>
+      </div>
 
       {/* Footer Branding */}
       <div className="p-4 border-t border-[var(--theme-border)] text-center bg-[var(--theme-hover)]/25 transition-colors duration-250">
