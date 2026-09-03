@@ -9,7 +9,20 @@ import { createServer as createViteServer } from 'vite';
 import { GoogleGenAI, Type } from '@google/genai';
 import dotenv from 'dotenv';
 
-import { testDbConnection, initializeDatabaseSchema, getDbClient } from './db';
+import {
+  testDbConnection,
+  initializeDatabaseSchema,
+  getDbClient,
+  getAllDbData,
+  upsertEmployee,
+  deleteEmployeeDb,
+  upsertTeam,
+  deleteTeamDb,
+  upsertProject,
+  deleteProjectDb,
+  upsertTask,
+  deleteTaskDb
+} from './db';
 
 dotenv.config();
 
@@ -59,6 +72,92 @@ async function startServer() {
       res.json({ success: true, message: 'Database schema created/updated successfully.' });
     } catch (err: any) {
       console.error("DB Init Error:", err.message);
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Fetch all DB Data
+  app.get('/api/db/data', async (req, res) => {
+    try {
+      const data = await getAllDbData();
+      res.json({ success: true, data });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Employees CRUD
+  app.post('/api/db/employees', async (req, res) => {
+    try {
+      await upsertEmployee(req.body);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.delete('/api/db/employees/:id', async (req, res) => {
+    try {
+      await deleteEmployeeDb(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Teams CRUD
+  app.post('/api/db/teams', async (req, res) => {
+    try {
+      await upsertTeam(req.body);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.delete('/api/db/teams/:id', async (req, res) => {
+    try {
+      await deleteTeamDb(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Projects CRUD
+  app.post('/api/db/projects', async (req, res) => {
+    try {
+      await upsertProject(req.body);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.delete('/api/db/projects/:id', async (req, res) => {
+    try {
+      await deleteProjectDb(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Tasks CRUD
+  app.post('/api/db/tasks', async (req, res) => {
+    try {
+      await upsertTask(req.body);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.delete('/api/db/tasks/:id', async (req, res) => {
+    try {
+      await deleteTaskDb(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
   });

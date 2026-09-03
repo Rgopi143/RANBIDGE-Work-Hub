@@ -264,6 +264,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     };
     setEmployees(prev => [...prev, newEmp]);
 
+    // Background sync to Turso DB
+    fetch('/api/db/employees', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newEmp)
+    }).catch(() => {});
+
     // Setup initial empty KPI for new employees
     const newKpi: PerformanceKPI = {
       id: `KPI-${700 + nextNum}`,
@@ -280,11 +287,23 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   };
 
   const updateEmployee = (id: string, updatedFields: Partial<Employee>) => {
-    setEmployees(prev => prev.map(e => e.id === id ? { ...e, ...updatedFields } : e));
+    setEmployees(prev => {
+      const updated = prev.map(e => e.id === id ? { ...e, ...updatedFields } : e);
+      const target = updated.find(e => e.id === id);
+      if (target) {
+        fetch('/api/db/employees', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(target)
+        }).catch(() => {});
+      }
+      return updated;
+    });
   };
 
   const deleteEmployee = (id: string) => {
     setEmployees(prev => prev.filter(e => e.id !== id));
+    fetch(`/api/db/employees/${id}`, { method: 'DELETE' }).catch(() => {});
   };
 
   // 2. Team CRUD
@@ -295,14 +314,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       id: nextId
     };
     setTeams(prev => [...prev, newTeam]);
+    fetch('/api/db/teams', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTeam)
+    }).catch(() => {});
   };
 
   const updateTeam = (id: string, updatedFields: Partial<Team>) => {
-    setTeams(prev => prev.map(t => t.id === id ? { ...t, ...updatedFields } : t));
+    setTeams(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, ...updatedFields } : t);
+      const target = updated.find(t => t.id === id);
+      if (target) {
+        fetch('/api/db/teams', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(target)
+        }).catch(() => {});
+      }
+      return updated;
+    });
   };
 
   const deleteTeam = (id: string) => {
     setTeams(prev => prev.filter(t => t.id !== id));
+    fetch(`/api/db/teams/${id}`, { method: 'DELETE' }).catch(() => {});
   };
 
   // 3. Project CRUD
@@ -314,14 +350,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       files: []
     };
     setProjects(prev => [...prev, newProj]);
+    fetch('/api/db/projects', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newProj)
+    }).catch(() => {});
   };
 
   const updateProject = (id: string, updatedFields: Partial<Project>) => {
-    setProjects(prev => prev.map(p => p.id === id ? { ...p, ...updatedFields } : p));
+    setProjects(prev => {
+      const updated = prev.map(p => p.id === id ? { ...p, ...updatedFields } : p);
+      const target = updated.find(p => p.id === id);
+      if (target) {
+        fetch('/api/db/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(target)
+        }).catch(() => {});
+      }
+      return updated;
+    });
   };
 
   const deleteProject = (id: string) => {
     setProjects(prev => prev.filter(p => p.id !== id));
+    fetch(`/api/db/projects/${id}`, { method: 'DELETE' }).catch(() => {});
   };
 
   const uploadProjectFile = (projectId: string, fileName: string, size: string) => {
@@ -329,10 +382,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     // Add file link to project list
     setProjects(prev => prev.map(p => {
       if (p.id === projectId) {
-        return {
+        const updatedProj = {
           ...p,
           files: [...p.files, { name: fileName, size, uploadedAt: today }]
         };
+        fetch('/api/db/projects', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updatedProj)
+        }).catch(() => {});
+        return updatedProj;
       }
       return p;
     }));
@@ -362,14 +421,31 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       comments: []
     };
     setTasks(prev => [...prev, newTask]);
+    fetch('/api/db/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newTask)
+    }).catch(() => {});
   };
 
   const updateTask = (id: string, updatedFields: Partial<Task>) => {
-    setTasks(prev => prev.map(t => t.id === id ? { ...t, ...updatedFields } : t));
+    setTasks(prev => {
+      const updated = prev.map(t => t.id === id ? { ...t, ...updatedFields } : t);
+      const target = updated.find(t => t.id === id);
+      if (target) {
+        fetch('/api/db/tasks', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(target)
+        }).catch(() => {});
+      }
+      return updated;
+    });
   };
 
   const deleteTask = (id: string) => {
     setTasks(prev => prev.filter(t => t.id !== id));
+    fetch(`/api/db/tasks/${id}`, { method: 'DELETE' }).catch(() => {});
   };
 
   const addTaskComment = (taskId: string, commentText: string) => {

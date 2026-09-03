@@ -12,13 +12,9 @@ const TURSO_URL = process.env.TURSO_DATABASE_URL || "libsql://ranbidge-workspace
 const TURSO_AUTH_TOKEN = process.env.TURSO_AUTH_TOKEN || "";
 
 let client: Client | null = null;
-let isConnected = false;
-let connectionError: string | null = null;
 
 export function getDbClient(): Client {
   if (!client) {
-    // If url starts with file: or is local, token might not be needed.
-    // For remote libsql:// turso url, client is initialized with url & authToken
     client = createClient({
       url: TURSO_URL,
       authToken: TURSO_AUTH_TOKEN,
@@ -31,13 +27,9 @@ export async function testDbConnection(): Promise<{ connected: boolean; error: s
   try {
     const db = getDbClient();
     await db.execute("SELECT 1");
-    isConnected = true;
-    connectionError = null;
     return { connected: true, error: null, url: TURSO_URL };
   } catch (err: any) {
-    isConnected = false;
-    connectionError = err.message || "Failed to connect to Turso DB";
-    return { connected: false, error: connectionError, url: TURSO_URL };
+    return { connected: false, error: err.message || "Failed to connect to Turso DB", url: TURSO_URL };
   }
 }
 
@@ -52,7 +44,7 @@ export async function initializeDatabaseSchema(): Promise<void> {
       role TEXT,
       department TEXT,
       designation TEXT,
-      joinDate TEXT,
+      joiningDate TEXT,
       status TEXT,
       salary REAL,
       skills TEXT,
@@ -154,4 +146,134 @@ export async function initializeDatabaseSchema(): Promise<void> {
     await db.execute(query);
   }
   console.log("✅ Turso / libSQL Database schema initialized successfully.");
+}
+
+export async function getAllDbData() {
+  const db = getDbClient();
+  await initializeDatabaseSchema();
+
+  const employeesRes = await db.execute("SELECT * FROM employees");
+  const teamsRes = await db.execute("SELECT * FROM teams");
+  const projectsRes = await db.execute("SELECT * FROM projects");
+  const tasksRes = await db.execute("SELECT * FROM tasks");
+  const attendanceRes = await db.execute("SELECT * FROM attendance");
+  const leavesRes = await db.execute("SELECT * FROM leaves");
+  const payrollRes = await db.execute("SELECT * FROM payroll");
+  const kpisRes = await db.execute("SELECT * FROM kpis");
+  const announcementsRes = await db.execute("SELECT * FROM announcements");
+
+  return {
+    employees: employeesRes.rows,
+    teams: teamsRes.rows,
+    projects: projectsRes.rows,
+    tasks: tasksRes.rows,
+    attendance: attendanceRes.rows,
+    leaves: leavesRes.rows,
+    payroll: payrollRes.rows,
+    kpis: kpisRes.rows,
+    announcements: announcementsRes.rows,
+  };
+}
+
+export async function upsertEmployee(emp: any) {
+  const db = getDbClient();
+  await db.execute({
+    sql: `INSERT OR REPLACE INTO employees (id, name, email, role, department, designation, joiningDate, status, salary, skills, avatar)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      emp.id,
+      emp.name || '',
+      emp.email || '',
+      emp.role || emp.employmentType || 'Full-Time',
+      emp.department || '',
+      emp.designation || '',
+      emp.joiningDate || emp.joinDate || '',
+      emp.status || 'Active',
+      emp.salary || 0,
+      typeof emp.skills === 'string' ? emp.skills : JSON.stringify(emp.skills || []),
+      emp.photo || emp.avatar || ''
+    ]
+  });
+}
+
+export async function deleteEmployeeDb(id: string) {
+  const db = getDbClient();
+  await db.execute({ sql: `DELETE FROM employees WHERE id = ?`, args: [id] });
+}
+
+export async function upsertTeam(team: any) {
+  const db = getDbClient();
+  await db.execute({
+    sql: `INSERT OR REPLACE INTO teams (id, name, department, leadId, leadName, memberCount, projectCount, description)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      team.id,
+      team.name || '',
+      team.department || '',
+      team.leadId || '',
+      team.leadName || '',
+      team.memberCount || 0,
+      team.projectCount || 0,
+      team.description || ''
+    ]
+  });
+}
+
+export async function deleteTeamDb(id: string) {
+  const db = getDbClient();
+  await db.execute({ sql: `DELETE FROM teams WHERE id = ?`, args: [id] });
+}
+
+export async function upsertProject(proj: any) {
+  const db = getDbClient();
+  await db.execute({
+    sql: `INSERT OR REPLACE INTO projects (id, name, client, department, status, progress, startDate, deadline, budget, teamId, description, files)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      proj.id,
+      proj.name || '',
+      proj.client || '',
+      proj.department || '',
+      proj.status || 'In Progress',
+      proj.progress || 0,
+      proj.startDate || '',
+      proj.deadline || '',
+      proj.budget || 0,
+      proj.teamId || '',
+      proj.description || '',
+      typeof proj.files === 'string' ? proj.files : JSON.stringify(proj.files || [])
+    ]
+  });
+}
+
+export async function deleteProjectDb(id: string) {
+  const db = getDbClient();
+  await db.execute({ sql: `DELETE FROM projects WHERE id = ?`, args: [id] });
+}
+
+export async function upsertTask(task: any) {
+  const db = getDbClient();
+  await db.execute({
+    sql: `INSERT OR REPLACE INTO tasks (id, title, description, status, priority, assignedEmployeeId, assignedEmployeeName, projectId, projectName, deadline, tags, comments)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      task.id,
+      task.title || task.name || 'Untitled Task',
+      task.description || '',
+      task.status || 'To Do',
+      task.priority || 'Medium',
+      task.assignedEmployeeId || '',
+      task.assignedEmployeeName || '',
+      task.projectId || '',
+      task.projectName || '',
+      task.deadline || '',
+      typeof task.tags === 'string' ? task.tags : (task.tags || []).join(','),
+      typeof task.comments === 'string' ? task.comments : JSON.stringify(task.comments || [])
+    ]
+  });
+}
+
+export async function deleteTaskDb(id: string) {
+  const db = getDbClient();
+  await db.execute({ sql: `DELETE FROM tasks WHERE id = ?`, args: [id] });
 }

@@ -14,7 +14,8 @@ import {
   CalendarCheck,
   CheckCircle,
   Clock,
-  Palette
+  Palette,
+  Database
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -74,7 +75,10 @@ export default function Header({ activeTab }: HeaderProps) {
       <div className="flex items-center space-x-2">
         <h2 id="header-page-title" className="text-sm font-serif italic font-bold tracking-tight text-[var(--theme-text)] transition-all">{getPageTitle(activeTab)}</h2>
         <span className="h-4 w-px bg-[var(--theme-border)]" />
-        <span className="text-[9px] font-mono text-[var(--theme-muted)] bg-[var(--theme-sidebar)] px-2 py-0.5 rounded-sm border border-[var(--theme-border)]">RAN-CORE-v1.2</span>
+        <span className="text-[9px] font-mono text-[var(--theme-muted)] bg-[var(--theme-sidebar)] px-2 py-0.5 rounded-sm border border-[var(--theme-border)] flex items-center space-x-1">
+          <Database className="h-3 w-3 text-cyan-500 inline mr-1" />
+          <span>Turso DB: ranbidge-workspace</span>
+        </span>
       </div>
 
       {/* Right Actions Block */}
