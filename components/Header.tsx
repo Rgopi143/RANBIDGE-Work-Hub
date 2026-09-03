@@ -85,53 +85,6 @@ export default function Header({ activeTab }: HeaderProps) {
 
       {/* Right Actions Block */}
       <div className="flex items-center space-x-3">
-        {/* Visual Theme Selection Console */}
-        <div className="relative">
-          <button
-            id="theme-select-btn"
-            onClick={() => {
-              setShowThemeDropdown(!showThemeDropdown);
-              setShowRoleDropdown(false);
-              setShowNotificationDropdown(false);
-            }}
-            className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] hover:bg-[var(--theme-hover)] text-[var(--theme-text)] font-sans text-xs font-semibold cursor-pointer shadow-xs transition-all hover:scale-102"
-          >
-            <Palette className="h-4 w-4 text-indigo-500 shrink-0" />
-            <span className="tracking-wide">{
-              themesList.find(t => t.id === currentTheme)?.label || 'Theme'
-            }</span>
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform text-[var(--theme-muted)] shrink-0 ${showThemeDropdown ? 'rotate-180' : ''}`} />
-          </button>
-
-          {showThemeDropdown && (
-            <div id="theme-select-dropdown" className="absolute right-0 mt-2 w-64 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-xl overflow-hidden z-50">
-              <div className="p-3 border-b border-[var(--theme-border)] bg-[var(--theme-sidebar)] flex items-center space-x-2">
-                <Palette className="h-4 w-4 text-indigo-500" />
-                <span className="text-[10px] font-bold text-[var(--theme-text)] tracking-wider uppercase font-mono">Workspace Themes</span>
-              </div>
-              <div className="p-2 space-y-1">
-                {themesList.map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      setCurrentTheme(item.id);
-                      setShowThemeDropdown(false);
-                    }}
-                    className={`w-full text-left p-2.5 rounded-xl transition-all hover:bg-[var(--theme-hover)] cursor-pointer flex items-center space-x-3 ${
-                      currentTheme === item.id ? 'bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/30 font-bold' : 'border border-transparent'
-                    }`}
-                  >
-                    <span className="text-lg shrink-0">{item.icon}</span>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-[var(--theme-text)] truncate">{item.label}</h4>
-                      <p className="text-[9px] text-[var(--theme-muted)] truncate">{item.desc}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
 
         {/* Role Switcher Button Console */}
         <div className="relative">
