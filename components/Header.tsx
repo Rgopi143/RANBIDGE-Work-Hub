@@ -97,7 +97,7 @@ export default function Header({ activeTab }: HeaderProps) {
             className="flex items-center space-x-2 px-3 py-1.5 rounded-xl border border-[var(--theme-border)] bg-[var(--theme-card)] hover:bg-[var(--theme-hover)] text-[var(--theme-text)] font-sans text-xs font-semibold cursor-pointer shadow-xs transition-all hover:scale-102"
           >
             <Palette className="h-4 w-4 text-indigo-500 shrink-0" />
-            <span className="tracking-wide">Theme: {
+            <span className="tracking-wide">{
               themesList.find(t => t.id === currentTheme)?.label || 'Theme'
             }</span>
             <ChevronDown className={`h-3.5 w-3.5 transition-transform text-[var(--theme-muted)] shrink-0 ${showThemeDropdown ? 'rotate-180' : ''}`} />
@@ -145,7 +145,7 @@ export default function Header({ activeTab }: HeaderProps) {
             className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl border border-[var(--theme-border)] bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-sans text-xs font-semibold cursor-pointer shadow-xs transition-all hover:scale-102"
           >
             <ShieldCheck className="h-4 w-4 text-white shrink-0" />
-            <span className="tracking-wide">Role: {currentRole}</span>
+            <span className="tracking-wide">{currentRole}</span>
             <ChevronDown className={`h-3.5 w-3.5 transition-transform text-white/80 shrink-0 ${showRoleDropdown ? 'rotate-180' : ''}`} />
           </button>
 
