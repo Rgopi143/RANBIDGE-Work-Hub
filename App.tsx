@@ -19,10 +19,17 @@ import PerformanceView from './components/PerformanceView';
 import DocumentsView from './components/DocumentsView';
 import CommunicationView from './components/CommunicationView';
 import SettingsView from './components/SettingsView';
+import LoginView from './components/LoginView';
+import AICoPilot from './components/AICoPilot';
 
 function WorkspaceLayout() {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { currentTheme } = useWorkspace();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const { currentTheme, isAuthenticated } = useWorkspace();
+
+  if (!isAuthenticated) {
+    return <LoginView />;
+  }
 
   const renderActiveView = () => {
     switch (activeTab) {
@@ -58,11 +65,11 @@ function WorkspaceLayout() {
   return (
     <div data-theme={currentTheme} className="flex h-screen bg-[var(--theme-bg)] text-[var(--theme-text)] overflow-hidden font-sans antialiased transition-colors duration-250">
       {/* Navigation Panel */}
-      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isMobileOpen={isMobileOpen} setIsMobileOpen={setIsMobileOpen} />
 
       {/* Primary Workspace Panel */}
       <div className="flex-1 flex flex-col min-w-0 bg-[var(--theme-bg)] text-[var(--theme-text)] transition-colors duration-250">
-        <Header activeTab={activeTab} />
+        <Header activeTab={activeTab} setIsMobileOpen={setIsMobileOpen} />
         
         {/* Main View Port */}
         <main className="flex-1 overflow-y-auto p-6 bg-[var(--theme-bg)] text-[var(--theme-text)] scrollbar-thin transition-colors duration-250">
@@ -71,6 +78,9 @@ function WorkspaceLayout() {
           </div>
         </main>
       </div>
+
+      {/* Floating Bottom-Right AI Co-pilot Widget */}
+      <AICoPilot />
     </div>
   );
 }

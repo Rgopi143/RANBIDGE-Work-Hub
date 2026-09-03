@@ -47,6 +47,7 @@ export default function DashboardView({ setActiveTab }: DashboardViewProps) {
     projects,
     tasks,
     announcements,
+    attendance,
     getAIAssistantResponse
   } = useWorkspace();
 
@@ -62,20 +63,23 @@ export default function DashboardView({ setActiveTab }: DashboardViewProps) {
   const toDoTasks = tasks.filter(t => t.status === 'To Do').length;
   const delayedTasks = tasks.filter(t => t.status === 'Delayed').length;
 
+  const presentToday = attendance.filter(a => a.status === 'Present' || a.status === 'Late' || a.status === 'Half Day').length;
+  const absentToday = attendance.filter(a => a.status === 'Absent').length;
+
   const taskStatusData = [
-    { name: 'Completed', value: completedTasks || 4, color: '#10b981' },
-    { name: 'Working', value: inProgressTasks || 3, color: '#3b82f6' },
-    { name: 'To Do', value: toDoTasks || 2, color: '#8b5cf6' },
-    { name: 'Delayed', value: delayedTasks || 2, color: '#f59e0b' }
+    { name: 'Completed', value: completedTasks, color: '#10b981' },
+    { name: 'Working', value: inProgressTasks, color: '#3b82f6' },
+    { name: 'To Do', value: toDoTasks, color: '#8b5cf6' },
+    { name: 'Delayed', value: delayedTasks, color: '#f59e0b' }
   ];
 
   const attendanceHistory = [
-    { day: 'Mon', Present: 9, Absent: 1 },
-    { day: 'Tue', Present: 8, Absent: 2 },
-    { day: 'Wed', Present: 10, Absent: 0 },
-    { day: 'Thu', Present: 9, Absent: 1 },
-    { day: 'Fri', Present: 8, Absent: 2 },
-    { day: 'Today', Present: 9, Absent: 1 }
+    { day: 'Mon', Present: 0, Absent: 0 },
+    { day: 'Tue', Present: 0, Absent: 0 },
+    { day: 'Wed', Present: 0, Absent: 0 },
+    { day: 'Thu', Present: 0, Absent: 0 },
+    { day: 'Fri', Present: 0, Absent: 0 },
+    { day: 'Today', Present: presentToday, Absent: absentToday }
   ];
 
   const setQuestionSnippet = (snippet: string) => {
@@ -219,96 +223,8 @@ export default function DashboardView({ setActiveTab }: DashboardViewProps) {
 
       {/* Main Grid Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* AI Co-Pilot Widget */}
-        <div className="lg:col-span-1 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl flex flex-col h-[430px] shadow-lg overflow-hidden">
-          <div className="p-4 border-b border-[var(--theme-border)] bg-gradient-to-r from-indigo-500/10 to-purple-500/10 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Sparkles className="h-4 w-4 text-indigo-500 animate-spin-slow" />
-              <h3 className="text-xs font-bold text-[var(--theme-text)] font-mono uppercase tracking-wider">RAN Co-Pilot AI</h3>
-            </div>
-            <span className="px-2 py-0.5 text-[9px] font-bold bg-indigo-500/20 text-indigo-500 rounded-full border border-indigo-500/30">ONLINE</span>
-          </div>
-
-          {/* Prompt Snippets */}
-          <div className="px-3 py-2 bg-[var(--theme-sidebar)] border-b border-[var(--theme-border)] flex items-center space-x-1.5 overflow-x-auto scrollbar-thin">
-            <span className="text-[9px] font-mono text-[var(--theme-muted)] uppercase font-bold shrink-0">Quick Prompts:</span>
-            <button
-              onClick={() => setQuestionSnippet('Show delayed tasks and assignees_')}
-              className="px-2.5 py-1 text-[9px] font-semibold bg-[var(--theme-card)] text-[var(--theme-text)] border border-[var(--theme-border)] rounded-lg hover:border-indigo-500 hover:text-indigo-500 transition-all shrink-0 cursor-pointer"
-            >
-              Delayed Tasks
-            </button>
-            <button
-              onClick={() => setQuestionSnippet('Suggest team for AI research project_')}
-              className="px-2.5 py-1 text-[9px] font-semibold bg-[var(--theme-card)] text-[var(--theme-text)] border border-[var(--theme-border)] rounded-lg hover:border-indigo-500 hover:text-indigo-500 transition-all shrink-0 cursor-pointer"
-            >
-              AI Team Setup
-            </button>
-          </div>
-
-          {/* Messages */}
-          <div className="flex-1 p-4 overflow-y-auto space-y-3 scrollbar-thin">
-            {aiChatLog.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center p-4 text-center space-y-2">
-                <div className="p-3.5 rounded-2xl bg-indigo-500/10 text-indigo-500 border border-indigo-500/20">
-                  <Sparkles className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[var(--theme-text)]">Co-Pilot Intelligence System</p>
-                  <p className="text-[10px] text-[var(--theme-muted)] leading-relaxed mt-1 max-w-xs">
-                    Query organizational metrics, delayed milestones, or project assignments.
-                  </p>
-                </div>
-              </div>
-            ) : (
-              aiChatLog.map((log, idx) => (
-                <div key={idx} className="space-y-2">
-                  <div className="flex justify-end">
-                    <div className="bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-2xl rounded-tr-xs p-2.5 max-w-[85%] text-xs font-medium shadow-sm">
-                      {log.query}
-                    </div>
-                  </div>
-                  <div className="flex justify-start">
-                    <div className="bg-[var(--theme-sidebar)] border border-[var(--theme-border)] text-[var(--theme-text)] rounded-2xl rounded-tl-xs p-3 max-w-[90%] text-xs leading-relaxed">
-                      {log.reply === 'Typing...' ? (
-                        <div className="flex items-center space-x-1 py-1">
-                          <span className="h-2 w-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                          <span className="h-2 w-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                          <span className="h-2 w-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                        </div>
-                      ) : (
-                        <p className="whitespace-pre-line text-xs">{log.reply}</p>
-                      )}
-                      <span className="text-[8px] font-mono text-[var(--theme-muted)] block text-right mt-1.5">{log.timestamp}</span>
-                    </div>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-
-          {/* Form input */}
-          <form onSubmit={handleAISubmit} className="p-3 border-t border-[var(--theme-border)] bg-[var(--theme-card)] flex items-center space-x-2">
-            <input
-              type="text"
-              value={aiInput}
-              onChange={e => setAiInput(e.target.value)}
-              placeholder="Ask Co-Pilot Assistant..."
-              className="flex-1 px-3.5 py-2 text-xs bg-[var(--theme-sidebar)] border border-[var(--theme-border)] rounded-xl text-[var(--theme-text)] focus:outline-none focus:border-indigo-500"
-            />
-            <button
-              type="submit"
-              disabled={isAiLoading || !aiInput.trim()}
-              className="p-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-md transition-all shrink-0"
-            >
-              <Send className="h-3.5 w-3.5" />
-            </button>
-          </form>
-        </div>
-
         {/* Charts & Analytics Panel */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-3 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* Task Status Pie Chart */}

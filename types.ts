@@ -3,7 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export type Role = 'Super Admin' | 'HR' | 'Manager' | 'Team Lead' | 'Employee' | 'Intern';
+export type Role =
+  | 'Super Admin'
+  | 'CEO'
+  | 'CFO'
+  | 'CTO'
+  | 'COO'
+  | 'CMO'
+  | 'HR'
+  | 'Manager'
+  | 'Project Manager'
+  | 'Team Lead'
+  | 'Social Media Manager'
+  | 'Guide'
+  | 'Mentor'
+  | 'Employee'
+  | 'Intern';
 
 export interface Employee {
   id: string; // e.g. "EMP-001"

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Role } from '../types';
 import {
@@ -16,18 +16,106 @@ import {
   Clock,
   Palette,
   Database,
-  Sparkles
+  Sparkles,
+  LogOut,
+  Trash2,
+  User,
+  Menu
 } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
+  setIsMobileOpen?: (open: boolean) => void;
 }
 
-export default function Header({ activeTab }: HeaderProps) {
-  const { currentRole, setCurrentRole, currentUser, currentTheme, setCurrentTheme } = useWorkspace();
+export default function Header({ activeTab, setIsMobileOpen }: HeaderProps) {
+  const { currentRole, setCurrentRole, currentUser, currentTheme, setCurrentTheme, logout } = useWorkspace();
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showNotificationDropdown, setShowNotificationDropdown] = useState(false);
   const [showThemeDropdown, setShowThemeDropdown] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
+
+  const roleRef = useRef<HTMLDivElement>(null);
+  const themeRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+  const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(event.target as Node)) {
+        setShowNotificationDropdown(false);
+      }
+      if (roleRef.current && !roleRef.current.contains(event.target as Node)) {
+        setShowRoleDropdown(false);
+      }
+      if (themeRef.current && !themeRef.current.contains(event.target as Node)) {
+        setShowThemeDropdown(false);
+      }
+      if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
+        setShowProfileDropdown(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setShowNotificationDropdown(false);
+        setShowRoleDropdown(false);
+        setShowThemeDropdown(false);
+        setShowProfileDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
+  const INITIAL_NOTIFS = [
+    { id: '1', text: 'Sarah Dias approved Intern Rahul Verma\'s leave application.', time: '10 mins ago', icon: CheckCircle, color: 'text-emerald-500' },
+    { id: '2', text: 'TSK-203 (SBI Landing Dashboard) flagged delayed by AI Co-pilot.', time: '1 hour ago', icon: Clock, color: 'text-amber-500 font-medium' },
+    { id: '3', text: 'Principal Rajesh Kumar updated RAN AI OS Product specification checklist.', time: 'Yesterday', icon: CalendarCheck, color: 'text-blue-500' }
+  ];
+
+  const [notifications, setNotifications] = useState(() => {
+    const saved = localStorage.getItem('RAN_WORKHUB_notifications_' + currentRole);
+    if (saved !== null) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return INITIAL_NOTIFS;
+      }
+    }
+    return INITIAL_NOTIFS;
+  });
+
+  useEffect(() => {
+    const saved = localStorage.getItem('RAN_WORKHUB_notifications_' + currentRole);
+    if (saved !== null) {
+      try {
+        setNotifications(JSON.parse(saved));
+      } catch (e) {
+        setNotifications(INITIAL_NOTIFS);
+      }
+    } else {
+      setNotifications(INITIAL_NOTIFS);
+    }
+  }, [currentRole]);
+
+  const handleClearNotifications = async () => {
+    setNotifications([]);
+    localStorage.setItem('RAN_WORKHUB_notifications_' + currentRole, '[]');
+    try {
+      await fetch(`/api/db/notifications/clear/${encodeURIComponent(currentRole)}`, {
+        method: 'DELETE'
+      });
+    } catch (err) {
+      console.warn("Cleared locally, DB sync error:", err);
+    }
+  };
 
   const themesList = [
     { id: 'minimal-warm', label: 'Minimal Warm', icon: '☀️', desc: 'Vibrant Light Indigo & Slate' },
@@ -73,103 +161,133 @@ export default function Header({ activeTab }: HeaderProps) {
     <header className="h-16 bg-[var(--theme-bg)] border-b border-[var(--theme-border)] px-6 flex items-center justify-between shrink-0 select-none sticky top-0 z-40 bg-opacity-95 backdrop-blur-md transition-colors duration-300">
       {/* Title block */}
       <div className="flex items-center space-x-3">
-        <h2 id="header-page-title" className="text-base font-extrabold tracking-tight text-[var(--theme-text)] flex items-center gap-2">
+        <button
+          onClick={() => setIsMobileOpen?.(true)}
+          className="md:hidden p-2 text-[var(--theme-text)] hover:bg-[var(--theme-hover)] rounded-xl transition-all border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-xs flex items-center justify-center cursor-pointer"
+          title="Open mobile navigation menu"
+        >
+          <Menu className="h-5 w-5 text-indigo-500" />
+        </button>
+        <h2 id="header-page-title" className="text-sm md:text-base font-extrabold tracking-tight text-[var(--theme-text)] flex items-center gap-2 truncate">
           <span>{getPageTitle(activeTab)}</span>
         </h2>
-        <span className="h-4 w-px bg-[var(--theme-border)]" />
-        <span className="text-[10px] font-mono text-[var(--theme-muted)] bg-[var(--theme-card)] px-2.5 py-1 rounded-full border border-[var(--theme-border)] shadow-xs flex items-center space-x-1.5">
-          <Database className="h-3 w-3 text-cyan-500 shrink-0" />
-          <span className="font-semibold">Turso: ranbidge-workspace</span>
-        </span>
       </div>
 
       {/* Right Actions Block */}
       <div className="flex items-center space-x-3">
 
-        {/* Role Switcher Button Console */}
-        <div className="relative">
+        {/* Notification & Logout Icon Console */}
+        <div ref={notifRef} className="relative flex items-center gap-2">
           <button
-            id="role-switch-btn"
-            onClick={() => {
-              setShowRoleDropdown(!showRoleDropdown);
-              setShowNotificationDropdown(false);
-              setShowThemeDropdown(false);
-            }}
-            className="flex items-center space-x-2 px-3.5 py-1.5 rounded-xl border border-[var(--theme-border)] bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-sans text-xs font-semibold cursor-pointer shadow-xs transition-all hover:scale-102"
-          >
-            <ShieldCheck className="h-4 w-4 text-white shrink-0" />
-            <span className="tracking-wide">{currentRole}</span>
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform text-white/80 shrink-0 ${showRoleDropdown ? 'rotate-180' : ''}`} />
-          </button>
-
-          {showRoleDropdown && (
-            <div id="role-select-dropdown" className="absolute right-0 mt-2 w-80 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-xl overflow-hidden z-50">
-              <div className="p-3.5 border-b border-[var(--theme-border)] bg-[var(--theme-sidebar)] flex items-center space-x-2">
-                <Info className="h-4 w-4 text-indigo-500" />
-                <span className="text-[10px] font-bold text-[var(--theme-text)] tracking-wider uppercase font-mono">Simulate Perms Context</span>
-              </div>
-              <div className="p-2 space-y-1 max-h-96 overflow-y-auto">
-                {rolesList.map(item => (
-                  <button
-                    key={item.role}
-                    onClick={() => {
-                      setCurrentRole(item.role);
-                      setShowRoleDropdown(false);
-                    }}
-                    className={`w-full text-left p-3 rounded-xl transition-all hover:bg-[var(--theme-hover)] cursor-pointer flex items-start space-x-3 ${
-                      currentRole === item.role ? 'bg-indigo-500/10 border border-indigo-500/30' : 'border border-transparent'
-                    }`}
-                  >
-                    <div className={`mt-1 h-3 w-3 rounded-full bg-gradient-to-r ${item.color} shrink-0 shadow-xs`} />
-                    <div>
-                      <h4 className="text-xs font-bold text-[var(--theme-text)]">{item.role}</h4>
-                      <p className="text-[10px] text-[var(--theme-muted)] leading-relaxed mt-0.5">{item.details}</p>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Notifications Icon */}
-        <div className="relative">
-          <button
-            id="notif-btn"
+            id="notif-bell-btn"
             onClick={() => {
               setShowNotificationDropdown(!showNotificationDropdown);
               setShowRoleDropdown(false);
               setShowThemeDropdown(false);
             }}
-            className="p-2 text-[var(--theme-text)] hover:bg-[var(--theme-hover)] rounded-xl transition-all relative cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-xs"
+            title="Notifications"
+            className="p-2 text-[var(--theme-text)] hover:bg-[var(--theme-hover)] rounded-xl transition-all relative cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-xs flex items-center justify-center"
           >
             <Bell className="h-4 w-4 text-indigo-500" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-rose-500 rounded-full animate-ping shrink-0" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-rose-500 rounded-full shrink-0" />
+            {notifications.length > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 bg-rose-500 text-white font-mono text-[10px] font-bold rounded-full flex items-center justify-center shadow-xs border-2 border-[var(--theme-bg)] shrink-0">
+                {notifications.length}
+              </span>
+            )}
           </button>
 
+          {/* Profile Icon Button & Dropdown */}
+          <div ref={profileRef} className="relative">
+            <button
+              onClick={() => {
+                setShowProfileDropdown(!showProfileDropdown);
+                setShowNotificationDropdown(false);
+              }}
+              title="User Account & Profile"
+              className="p-1 rounded-xl transition-all cursor-pointer border border-[var(--theme-border)] bg-[var(--theme-card)] shadow-xs flex items-center gap-1.5 hover:ring-2 hover:ring-indigo-500/30"
+            >
+              <img
+                src={currentUser?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                alt={currentUser?.name || 'User Profile'}
+                className="h-7 w-7 rounded-lg object-cover ring-1 ring-indigo-500/40 shrink-0"
+              />
+              <ChevronDown className={`h-3.5 w-3.5 text-[var(--theme-muted)] transition-transform mr-1 ${showProfileDropdown ? 'rotate-180' : ''}`} />
+            </button>
+
+            {showProfileDropdown && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-xl overflow-hidden z-50">
+                <div className="p-3.5 border-b border-[var(--theme-border)] bg-[var(--theme-sidebar)] flex items-center space-x-3">
+                  <img
+                    src={currentUser?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100'}
+                    alt="Profile"
+                    className="h-10 w-10 rounded-xl object-cover ring-2 ring-indigo-500/30 shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs font-bold text-[var(--theme-text)] truncate">{currentUser?.name || 'User Profile'}</h4>
+                    <span className="text-[10px] text-indigo-500 block truncate font-mono font-semibold">{currentRole}</span>
+                    <span className="text-[10px] text-[var(--theme-muted)] block truncate">{currentUser?.email || 'user@ranbidge.com'}</span>
+                  </div>
+                </div>
+
+                <div className="p-2">
+                  <button
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      logout();
+                    }}
+                    className="w-full px-3 py-2 text-left text-xs text-rose-500 hover:bg-rose-500/10 rounded-xl font-semibold flex items-center space-x-2 transition-colors cursor-pointer"
+                  >
+                    <LogOut className="h-4 w-4 shrink-0" />
+                    <span>Sign Out of Account</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
           {showNotificationDropdown && (
-            <div id="notif-dropdown" className="absolute right-0 mt-2 w-96 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-xl overflow-hidden z-50">
+            <div id="notif-dropdown" className="absolute right-0 top-full mt-2 w-96 bg-[var(--theme-card)] border border-[var(--theme-border)] rounded-2xl shadow-xl overflow-hidden z-50">
               <div className="p-3.5 border-b border-[var(--theme-border)] bg-[var(--theme-sidebar)] flex justify-between items-center">
-                <span className="text-xs font-bold text-[var(--theme-text)] tracking-wider uppercase font-mono flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5 text-indigo-500" />
-                  <span>Operational Alerts</span>
+                <span className="text-xs font-bold text-[var(--theme-text)] tracking-wider uppercase font-mono">
+                  <span>Alerts</span>
                 </span>
-                <span className="px-2 py-0.5 text-[9px] font-bold bg-rose-500/10 text-rose-500 rounded-full uppercase border border-rose-500/20">3 New</span>
+                <div className="flex items-center space-x-2">
+                  {notifications.length > 0 && (
+                    <button
+                      onClick={handleClearNotifications}
+                      className="px-2 py-0.5 text-[10px] font-medium text-rose-500 hover:text-white bg-rose-500/10 hover:bg-rose-500 rounded-md border border-rose-500/20 transition-all flex items-center gap-1 cursor-pointer"
+                      title="Clear all operational alerts"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      <span>Clear All</span>
+                    </button>
+                  )}
+                  <span className="px-2 py-0.5 text-[9px] font-bold bg-indigo-500/10 text-indigo-500 rounded-full uppercase border border-indigo-500/20">
+                    {notifications.length} New
+                  </span>
+                </div>
               </div>
               <div className="p-2 divide-y divide-[var(--theme-border)] max-h-96 overflow-y-auto">
-                {mockNotifications.map(notif => {
-                  const Icon = notif.icon;
-                  return (
-                    <div key={notif.id} className="p-3 flex items-start space-x-3 hover:bg-[var(--theme-hover)] rounded-xl transition-colors">
-                      <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${notif.color}`} />
-                      <div className="flex-1 min-w-0">
-                        <p className="text-xs text-[var(--theme-text)] leading-normal">{notif.text}</p>
-                        <span className="text-[9px] font-mono text-[var(--theme-muted)] block mt-1">{notif.time}</span>
+                {notifications.length > 0 ? (
+                  notifications.map(notif => {
+                    const Icon = notif.icon;
+                    return (
+                      <div key={notif.id} className="p-3 flex items-start space-x-3 hover:bg-[var(--theme-hover)] rounded-xl transition-colors">
+                        <Icon className={`h-4 w-4 mt-0.5 shrink-0 ${notif.color}`} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs text-[var(--theme-text)] leading-normal">{notif.text}</p>
+                          <span className="text-[9px] font-mono text-[var(--theme-muted)] block mt-1">{notif.time}</span>
+                        </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    );
+                  })
+                ) : (
+                  <div className="p-8 text-center text-[var(--theme-muted)]">
+                    <CheckCircle className="h-8 w-8 text-emerald-500/60 mx-auto mb-2" />
+                    <p className="text-xs font-semibold text-[var(--theme-text)]">All Caught Up!</p>
+                    <p className="text-[10px] mt-0.5">No unread notifications</p>
+                  </div>
+                )}
               </div>
             </div>
           )}

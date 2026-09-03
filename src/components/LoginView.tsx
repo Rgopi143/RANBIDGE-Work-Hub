@@ -1,0 +1,258 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useState } from 'react';
+import { useWorkspace } from '../context/WorkspaceContext';
+import { Role } from '../types';
+import {
+  Lock,
+  Mail,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ShieldAlert,
+  X,
+  UserCheck,
+  ChevronDown
+} from 'lucide-react';
+
+export default function LoginView() {
+  const { login } = useWorkspace();
+  const [selectedRole, setSelectedRole] = useState<Role>('Super Admin');
+  const [email, setEmail] = useState('rajesh.kumar@ranbidge.com');
+  const [password, setPassword] = useState('••••••••••••');
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showForgotModal, setShowForgotModal] = useState(false);
+
+  const availableRoles: Role[] = [
+    'Super Admin',
+    'CEO',
+    'CFO',
+    'CTO',
+    'COO',
+    'CMO',
+    'HR',
+    'Manager',
+    'Project Manager',
+    'Team Lead',
+    'Social Media Manager',
+    'Guide',
+    'Mentor',
+    'Employee',
+    'Intern'
+  ];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    setTimeout(() => {
+      setIsLoading(false);
+      login(selectedRole);
+    }, 800);
+  };
+
+  return (
+    <div className="min-h-screen w-full bg-slate-100 text-slate-800 flex items-center justify-center p-4 relative overflow-hidden font-sans select-none">
+      {/* Background Soft Glows & Pattern */}
+      <div className="absolute -top-40 -left-40 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -bottom-40 -right-40 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      {/* Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f080_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f080_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none"></div>
+
+      {/* Centered Clean Login Card */}
+      <div className="relative w-full max-w-md bg-white border border-slate-200/90 rounded-3xl shadow-2xl shadow-slate-300/60 overflow-hidden p-8 lg:p-10 z-10">
+        
+        {/* Brand Logo Header */}
+        <div className="flex flex-col items-center text-center mb-6">
+          <img
+            src="/Ranbidge Logo.png"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = '/logo.png';
+            }}
+            alt="RANBIDGE Solutions Private Limited"
+            className="h-14 w-auto object-contain max-w-[260px] mb-4"
+          />
+          <h2 className="text-xl font-bold text-slate-900 tracking-tight">Sign In to Your Workspace</h2>
+          <p className="text-xs text-slate-500 mt-1 font-medium">Select your role and enter credentials to log in</p>
+        </div>
+
+        {/* Login Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Access Role Selection Dropdown */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+              <span>Select Access Role / Account</span>
+              <span className="text-[10px] text-indigo-600 font-semibold">15 Roles Available</span>
+            </label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <UserCheck className="w-4 h-4 text-indigo-600" />
+              </div>
+              <select
+                value={selectedRole}
+                onChange={(e) => setSelectedRole(e.target.value as Role)}
+                className="w-full pl-10 pr-8 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 font-bold focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all appearance-none cursor-pointer"
+              >
+                {availableRoles.map((role) => (
+                  <option key={role} value={role}>
+                    {role} Log In
+                  </option>
+                ))}
+              </select>
+              <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-400">
+                <ChevronDown className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+
+          {/* Email Address Input */}
+          <div>
+            <label className="block text-xs font-bold text-slate-700 mb-1.5">Work Email / Employee ID</label>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Mail className="w-4 h-4" />
+              </div>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                placeholder="name@ranbidge.com"
+              />
+            </div>
+          </div>
+
+          {/* Password Input */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="block text-xs font-bold text-slate-700">Password</label>
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(true)}
+                className="text-xs text-indigo-600 hover:text-indigo-800 font-semibold transition-colors cursor-pointer"
+              >
+                Forgot password?
+              </button>
+            </div>
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                <Lock className="w-4 h-4" />
+              </div>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full pl-10 pr-10 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-slate-900 font-medium placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all"
+                placeholder="Enter security password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Remember Me Checkbox */}
+          <div className="flex items-center justify-between pt-1">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-slate-300 bg-slate-50 text-indigo-600 focus:ring-indigo-600 cursor-pointer"
+              />
+              <span className="text-xs text-slate-600 font-medium">Keep me signed in for 30 days</span>
+            </label>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full mt-2 py-3 px-4 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/25 flex items-center justify-center space-x-2 transition-all transform active:scale-[0.99] disabled:opacity-70 cursor-pointer"
+          >
+            {isLoading ? (
+              <>
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                <span>Authenticating Workspace...</span>
+              </>
+            ) : (
+              <>
+                <span>Sign In to {selectedRole} Account</span>
+                <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
+
+        {/* Footer Copyright */}
+        <div className="mt-8 pt-4 border-t border-slate-200/80 text-center text-[11px] text-slate-500 font-medium">
+          © 2026 RANBIDGE Solutions Private Limited. All Rights Reserved.
+        </div>
+      </div>
+
+      {/* Forgot Password / Incident Mail Modal */}
+      {showForgotModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative">
+            <button
+              onClick={() => setShowForgotModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="w-12 h-12 rounded-2xl bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center mb-4 shadow-xs">
+              <ShieldAlert className="w-6 h-6" />
+            </div>
+
+            <h3 className="text-lg font-bold text-slate-900">Password Reset & Incident Report</h3>
+            <p className="text-xs text-slate-500 mt-1 mb-4 font-medium leading-relaxed">
+              To protect organizational security, password resets are processed as official IT security incidents. Please report your request directly to IT Support:
+            </p>
+
+            <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2 mb-5">
+              <div className="text-xs">
+                <span className="font-bold text-slate-700 block mb-1">Official IT Support Email:</span>
+                <span className="font-mono text-indigo-600 font-bold text-xs bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200/60 inline-block select-all">
+                  ranbidgesolutionspvtltd@gmail.com
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed pt-1">
+                Clicking below will open your email client to send an incident report directly to <strong className="text-slate-800">ranbidgesolutionspvtltd@gmail.com</strong>.
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <a
+                href="mailto:ranbidgesolutionspvtltd@gmail.com?subject=RANBIDGE%20Workspace%20Password%20Reset%20Incident%20Report&body=Hello%20IT%20Security%20Team%2C%0A%0AI%20am%20requesting%20a%20password%20reset%20for%20my%20RANBIDGE%20Workspace%20Account.%0A%0AUser%20Email%3A%20%0AIncident%20Details%3A%20Password%20Reset%20Request"
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-indigo-600 via-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/20 flex items-center justify-center space-x-2 cursor-pointer transition-all"
+              >
+                <Mail className="w-4 h-4" />
+                <span>Send Incident Mail</span>
+              </a>
+              <button
+                type="button"
+                onClick={() => setShowForgotModal(false)}
+                className="px-4 py-3 text-xs text-slate-600 hover:bg-slate-100 rounded-xl font-semibold cursor-pointer border border-slate-200"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

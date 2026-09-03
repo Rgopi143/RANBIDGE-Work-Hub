@@ -139,6 +139,14 @@ export async function initializeDatabaseSchema(): Promise<void> {
       author TEXT,
       date TEXT,
       priority TEXT
+    );`,
+    `CREATE TABLE IF NOT EXISTS notifications (
+      id TEXT PRIMARY KEY,
+      role TEXT NOT NULL,
+      text TEXT NOT NULL,
+      time TEXT,
+      icon TEXT,
+      color TEXT
     );`
   ];
 
@@ -276,4 +284,23 @@ export async function upsertTask(task: any) {
 export async function deleteTaskDb(id: string) {
   const db = getDbClient();
   await db.execute({ sql: `DELETE FROM tasks WHERE id = ?`, args: [id] });
+}
+
+export async function clearNotificationsForRoleDb(role: string) {
+  const db = getDbClient();
+  await initializeDatabaseSchema();
+  await db.execute({
+    sql: `DELETE FROM notifications WHERE role = ? OR role = 'ALL'`,
+    args: [role]
+  });
+}
+
+export async function getNotificationsByRoleDb(role: string) {
+  const db = getDbClient();
+  await initializeDatabaseSchema();
+  const res = await db.execute({
+    sql: `SELECT * FROM notifications WHERE role = ? OR role = 'ALL'`,
+    args: [role]
+  });
+  return res.rows;
 }

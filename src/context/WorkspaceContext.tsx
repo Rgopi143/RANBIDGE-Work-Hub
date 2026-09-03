@@ -34,6 +34,9 @@ import {
 } from '../data/mockData';
 
 interface WorkspaceContextProps {
+  isAuthenticated: boolean;
+  login: (role?: Role) => void;
+  logout: () => void;
   currentRole: Role;
   setCurrentRole: (role: Role) => void;
   currentTheme: string;
@@ -111,6 +114,12 @@ const WorkspaceContext = createContext<WorkspaceContextProps | undefined>(undefi
 const STORAGE_PREFIX = 'RAN_WORKHUB_';
 
 export function WorkspaceProvider({ children }: { children: ReactNode }) {
+  // Authentication state
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const saved = localStorage.getItem(STORAGE_PREFIX + 'auth');
+    return saved !== null ? saved === 'true' : true;
+  });
+
   // Load state or use initial mocks
   const [currentRole, setRoleState] = useState<Role>(() => {
     const saved = localStorage.getItem(STORAGE_PREFIX + 'role');
@@ -180,6 +189,29 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
 
   // Sync state to local storage to persist
+  useEffect(() => {
+    // Automatically purge old demo sample data from local storage if detected
+    const storedEmps = localStorage.getItem(STORAGE_PREFIX + 'employees');
+    if (storedEmps && (storedEmps.includes('EMP-001') || storedEmps.includes('Rajesh Kumar'))) {
+      const keysToClear = [
+        'employees', 'teams', 'projects', 'tasks', 'attendance',
+        'leaves', 'payroll', 'kpis', 'documents', 'announcements', 'chatMessages'
+      ];
+      keysToClear.forEach(key => localStorage.removeItem(STORAGE_PREFIX + key));
+      setEmployees([]);
+      setTeams([]);
+      setProjects([]);
+      setTasks([]);
+      setAttendance([]);
+      setLeaves([]);
+      setPayroll([]);
+      setKpis([]);
+      setDocuments([]);
+      setAnnouncements([]);
+      setChatMessages([]);
+    }
+  }, []);
+
   useEffect(() => {
     localStorage.setItem(STORAGE_PREFIX + 'role', currentRole);
   }, [currentRole]);
@@ -252,6 +284,19 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const setCurrentTheme = (theme: string) => {
     setThemeState(theme);
+  };
+
+  const login = (role?: Role) => {
+    if (role) {
+      setRoleState(role);
+    }
+    setIsAuthenticated(true);
+    localStorage.setItem(STORAGE_PREFIX + 'auth', 'true');
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    localStorage.setItem(STORAGE_PREFIX + 'auth', 'false');
   };
 
   // 1. Employee CRUD
@@ -838,6 +883,9 @@ How can I assist you with company operations today?`;
   return (
     <WorkspaceContext.Provider
       value={{
+        isAuthenticated,
+        login,
+        logout,
         currentRole,
         setCurrentRole,
         currentTheme,

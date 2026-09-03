@@ -21,7 +21,9 @@ import {
   upsertProject,
   deleteProjectDb,
   upsertTask,
-  deleteTaskDb
+  deleteTaskDb,
+  clearNotificationsForRoleDb,
+  getNotificationsByRoleDb
 } from './db';
 
 dotenv.config();
@@ -157,6 +159,25 @@ async function startServer() {
     try {
       await deleteTaskDb(req.params.id);
       res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Notifications API
+  app.delete('/api/db/notifications/clear/:role', async (req, res) => {
+    try {
+      await clearNotificationsForRoleDb(req.params.role);
+      res.json({ success: true, message: `Notifications for ${req.params.role} deleted from database.` });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.get('/api/db/notifications/:role', async (req, res) => {
+    try {
+      const rows = await getNotificationsByRoleDb(req.params.role);
+      res.json({ success: true, notifications: rows });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
