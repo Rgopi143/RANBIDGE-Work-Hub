@@ -8,23 +8,23 @@ This document contains the official registry of all **15 System Roles**, authent
 
 All 15 employee accounts are pre-seeded into Turso Database (`libsql://ranbidge-workspace-rgopi143.aws-ap-south-1.turso.io`) under the `employees` and `documents` tables.
 
-| # | Employee ID | Designation / Role | Full Name | Official Email | Default Password | Department | Monthly Salary (INR) |
+| # | Employee ID | Designation / Role | Full Name | Official Email | Clearance & Passkey | Department | Monthly Salary (INR) |
 | :---: | :---: | :--- | :--- | :--- | :--- | :--- | :---: |
-| **1** | `EMP-001` | **Super Admin** | Rajesh Kumar | `admin@ranbidge.com` | `Admin@2026` | Executive Administration | ₹3,50,000 |
-| **2** | `EMP-002` | **CEO** | Ananya Sharma | `ceo@ranbidge.com` | `Ceo@2026` | Executive Leadership | ₹5,00,000 |
-| **3** | `EMP-003` | **CFO** | Vikramaditya Roy | `cfo@ranbidge.com` | `Cfo@2026` | Finance & Compliance | ₹4,20,000 |
-| **4** | `EMP-004` | **CTO** | Siddharth Varma | `cto@ranbidge.com` | `Cto@2026` | Technology & R&D | ₹4,50,000 |
-| **5** | `EMP-005` | **COO** | Meera Nambiar | `coo@ranbidge.com` | `Coo@2026` | Global Operations | ₹3,80,000 |
-| **6** | `EMP-006` | **CMO** | Karan Malhotra | `cmo@ranbidge.com` | `Cmo@2026` | Growth & Marketing | ₹3,60,000 |
-| **7** | `EMP-007` | **HR** | Pooja Hegde | `hr@ranbidge.com` | `Hr@2026` | Human Resources | ₹2,20,000 |
-| **8** | `EMP-008` | **Manager** | Amit Patel | `manager@ranbidge.com` | `Manager@2026` | Product Operations | ₹2,60,000 |
-| **9** | `EMP-009` | **Project Manager** | Rohan Gupta | `pm@ranbidge.com` | `Pm@2026` | Delivery Engineering | ₹2,10,000 |
-| **10** | `EMP-010` | **Team Lead** | Deepak Rao | `tl@ranbidge.com` | `Tl@2026` | Software Engineering | ₹1,80,000 |
-| **11** | `EMP-011` | **Social Media Manager** | Kakara Lavanya | `smm@ranbidge.com` | `Smm@2026` | Brand Marketing | ₹1,40,000 |
-| **12** | `EMP-012` | **Guide** | Suresh Reddy | `guide@ranbidge.com` | `Guide@2026` | Customer Success | ₹1,30,000 |
-| **13** | `EMP-013` | **Mentor** | Dr. Anita Joshi | `mentor@ranbidge.com` | `Mentor@2026` | Learning & Development | ₹2,50,000 |
-| **14** | `EMP-014` | **Employee** | Rahul Verma | `employee@ranbidge.com` | `Emp@2026` | Software Engineering | ₹95,000 |
-| **15** | `EMP-015` | **Intern** | Neha Kapoor | `intern@ranbidge.com` | `Intern@2026` | Software Engineering | ₹35,000 |
+| **1** | `EMP-001` | **Super Admin** | Rajesh Kumar | `admin@ranbidge.com` | `[SUPER_ADMIN_PASSKEY]` | Executive Administration | ₹3,50,000 |
+| **2** | `EMP-002` | **CEO** | Ananya Sharma | `ceo@ranbidge.com` | `[CEO_PASSKEY]` | Executive Leadership | ₹5,00,000 |
+| **3** | `EMP-003` | **CFO** | Vikramaditya Roy | `cfo@ranbidge.com` | `[CFO_PASSKEY]` | Finance & Compliance | ₹4,20,000 |
+| **4** | `EMP-004` | **CTO** | Siddharth Varma | `cto@ranbidge.com` | `[CTO_PASSKEY]` | Technology & R&D | ₹4,50,000 |
+| **5** | `EMP-005` | **COO** | Meera Nambiar | `coo@ranbidge.com` | `[COO_PASSKEY]` | Global Operations | ₹3,80,000 |
+| **6** | `EMP-006` | **CMO** | Karan Malhotra | `cmo@ranbidge.com` | `[CMO_PASSKEY]` | Growth & Marketing | ₹3,60,000 |
+| **7** | `EMP-007` | **HR** | Pooja Hegde | `hr@ranbidge.com` | `[HR_PASSKEY]` | Human Resources | ₹2,20,000 |
+| **8** | `EMP-008` | **Manager** | Amit Patel | `manager@ranbidge.com` | `[MANAGER_PASSKEY]` | Product Operations | ₹2,60,000 |
+| **9** | `EMP-009` | **Project Manager** | Rohan Gupta | `pm@ranbidge.com` | `[PM_PASSKEY]` | Delivery Engineering | ₹2,10,000 |
+| **10** | `EMP-010` | **Team Lead** | Deepak Rao | `tl@ranbidge.com` | `[TL_PASSKEY]` | Software Engineering | ₹1,80,000 |
+| **11** | `EMP-011` | **Social Media Manager** | Kakara Lavanya | `smm@ranbidge.com` | `[SMM_PASSKEY]` | Brand Marketing | ₹1,40,000 |
+| **12** | `EMP-012` | **Guide** | Suresh Reddy | `guide@ranbidge.com` | `[GUIDE_PASSKEY]` | Customer Success | ₹1,30,000 |
+| **13** | `EMP-013` | **Mentor** | Dr. Anita Joshi | `mentor@ranbidge.com` | `[MENTOR_PASSKEY]` | Learning & Development | ₹2,50,000 |
+| **14** | `EMP-014` | **Employee** | Rahul Verma | `employee@ranbidge.com` | `[EMP_PASSKEY]` | Software Engineering | ₹95,000 |
+| **15** | `EMP-015` | **Intern** | Neha Kapoor | `intern@ranbidge.com` | `[INTERN_PASSKEY]` | Software Engineering | ₹35,000 |
 
 ---
 

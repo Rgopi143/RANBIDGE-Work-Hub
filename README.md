@@ -10,23 +10,23 @@ Select any role on the **Sign In** screen from the **Select Access Role / Accoun
 
 ### Default Login Credentials
 
-| Employee ID | Role / Designation | Employee Name | Work Email | Password | Department | Access Level |
+| Employee ID | Role / Designation | Employee Name | Work Email | Passkey Clearance | Department | Access Level |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| `EMP-001` | **Super Admin** | Rajesh Kumar | `admin@ranbidge.com` | `Admin@2026` | Executive Administration | Full Enterprise Control |
-| `EMP-002` | **CEO** | Ananya Sharma | `ceo@ranbidge.com` | `Ceo@2026` | Executive Leadership | Strategic Governance |
-| `EMP-003` | **CFO** | Vikramaditya Roy | `cfo@ranbidge.com` | `Cfo@2026` | Finance & Compliance | Financial & Payroll Control |
-| `EMP-004` | **CTO** | Siddharth Varma | `cto@ranbidge.com` | `Cto@2026` | Technology & R&D | Engineering & AI Architecture |
-| `EMP-005` | **COO** | Meera Nambiar | `coo@ranbidge.com` | `Coo@2026` | Global Operations | Operational Governance |
-| `EMP-006` | **CMO** | Karan Malhotra | `cmo@ranbidge.com` | `Cmo@2026` | Growth & Marketing | Branding & Announcements |
-| `EMP-007` | **HR** | Pooja Hegde | `hr@ranbidge.com` | `Hr@2026` | Human Resources | Employee, Leave & Payroll |
-| `EMP-008` | **Manager** | Amit Patel | `manager@ranbidge.com` | `Manager@2026` | Product Operations | Departmental Management |
-| `EMP-009` | **Project Manager** | Rohan Gupta | `pm@ranbidge.com` | `Pm@2026` | Delivery Engineering | Projects & Sprint Console |
-| `EMP-010` | **Team Lead** | Deepak Rao | `tl@ranbidge.com` | `Tl@2026` | Software Engineering | Engineering Sprints & Tasks |
-| `EMP-011` | **Social Media Manager** | Kakara Lavanya | `smm@ranbidge.com` | `Smm@2026` | Brand Marketing | Media & Communications |
-| `EMP-012` | **Guide** | Suresh Reddy | `guide@ranbidge.com` | `Guide@2026` | Customer Success | Product Guidance & Support |
-| `EMP-013` | **Mentor** | Dr. Anita Joshi | `mentor@ranbidge.com` | `Mentor@2026` | Learning & Development | Mentorship & Technical Training |
-| `EMP-014` | **Employee** | Rahul Verma | `employee@ranbidge.com` | `Emp@2026` | Software Engineering | Standard Workspace & Tasks |
-| `EMP-015` | **Intern** | Neha Kapoor | `intern@ranbidge.com` | `Intern@2026` | Software Engineering | Intern Console & Attendance |
+| `EMP-001` | **Super Admin** | Rajesh Kumar | `admin@ranbidge.com` | `[SUPER_ADMIN_PASSKEY]` | Executive Administration | Full Enterprise Control |
+| `EMP-002` | **CEO** | Ananya Sharma | `ceo@ranbidge.com` | `[CEO_PASSKEY]` | Executive Leadership | Strategic Governance |
+| `EMP-003` | **CFO** | Vikramaditya Roy | `cfo@ranbidge.com` | `[CFO_PASSKEY]` | Finance & Compliance | Financial & Payroll Control |
+| `EMP-004` | **CTO** | Siddharth Varma | `cto@ranbidge.com` | `[CTO_PASSKEY]` | Technology & R&D | Engineering & AI Architecture |
+| `EMP-005` | **COO** | Meera Nambiar | `coo@ranbidge.com` | `[COO_PASSKEY]` | Global Operations | Operational Governance |
+| `EMP-006` | **CMO** | Karan Malhotra | `cmo@ranbidge.com` | `[CMO_PASSKEY]` | Growth & Marketing | Branding & Announcements |
+| `EMP-007` | **HR** | Pooja Hegde | `hr@ranbidge.com` | `[HR_PASSKEY]` | Human Resources | Employee, Leave & Payroll |
+| `EMP-008` | **Manager** | Amit Patel | `manager@ranbidge.com` | `[MANAGER_PASSKEY]` | Product Operations | Departmental Management |
+| `EMP-009` | **Project Manager** | Rohan Gupta | `pm@ranbidge.com` | `[PM_PASSKEY]` | Delivery Engineering | Projects & Sprint Console |
+| `EMP-010` | **Team Lead** | Deepak Rao | `tl@ranbidge.com` | `[TL_PASSKEY]` | Software Engineering | Engineering Sprints & Tasks |
+| `EMP-011` | **Social Media Manager** | Kakara Lavanya | `smm@ranbidge.com` | `[SMM_PASSKEY]` | Brand Marketing | Media & Communications |
+| `EMP-012` | **Guide** | Suresh Reddy | `guide@ranbidge.com` | `[GUIDE_PASSKEY]` | Customer Success | Product Guidance & Support |
+| `EMP-013` | **Mentor** | Dr. Anita Joshi | `mentor@ranbidge.com` | `[MENTOR_PASSKEY]` | Learning & Development | Mentorship & Technical Training |
+| `EMP-014` | **Employee** | Rahul Verma | `employee@ranbidge.com` | `[EMP_PASSKEY]` | Software Engineering | Standard Workspace & Tasks |
+| `EMP-015` | **Intern** | Neha Kapoor | `intern@ranbidge.com` | `[INTERN_PASSKEY]` | Software Engineering | Intern Console & Attendance |
 
 ---
 
