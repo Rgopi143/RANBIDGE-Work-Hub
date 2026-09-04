@@ -41,12 +41,13 @@ export interface Employee {
   employmentType: 'Full-Time' | 'Part-Time' | 'Contract' | 'Intern';
   status: 'Active' | 'Inactive';
   faceIdEnrollment?: string; // Base64 data URI of captured face snapshot for authentication
-  documents: {
-    aadhaar: string; // file name or status
-    pan: string;
-    resume: string;
-    offerLetter: string;
-    nda: string;
+  password?: string;
+  documents?: {
+    aadhaar?: string;
+    pan?: string;
+    resume?: string;
+    offerLetter?: string;
+    nda?: string;
   };
 }
 
@@ -58,6 +59,12 @@ export interface Team {
   leaderName: string;
   memberIds: string[];
   productivityScore: number; // 0-100
+  mentorId?: string;
+  mentorName?: string;
+  guideId?: string;
+  guideName?: string;
+  internIds?: string[];
+  internNames?: string[];
 }
 
 export interface Project {
@@ -72,6 +79,12 @@ export interface Project {
   budget: number;
   priority: 'Low' | 'Medium' | 'High';
   status: 'Pending' | 'In Progress' | 'Completed' | 'On Hold';
+  mentorId?: string;
+  mentorName?: string;
+  guideId?: string;
+  guideName?: string;
+  internIds?: string[];
+  internNames?: string[];
   files: {
     name: string;
     size: string;
@@ -166,7 +179,7 @@ export interface PerformanceKPI {
 export interface CompanyDocument {
   id: string;
   name: string;
-  category: 'Employee Records' | 'Project files' | 'Agreements' | 'Reports' | 'Company Announcement';
+  category: 'Employee Records' | 'Project files' | 'Agreements' | 'Reports' | 'Company Announcement' | 'SOW Agreements' | 'HR Handbooks' | 'EPF Schemes' | 'Product Blueprints' | string;
   path: string;
   size: string;
   uploader: string;

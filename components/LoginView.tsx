@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useWorkspace } from '../context/WorkspaceContext';
 import { Role } from '../types';
 import {
@@ -15,18 +15,47 @@ import {
   ShieldAlert,
   X,
   UserCheck,
-  ChevronDown
+  ChevronDown,
+  FileBadge,
+  Upload,
+  CheckCircle,
+  KeyRound,
+  ShieldCheck,
+  FileText
 } from 'lucide-react';
 
+import { ROLE_CREDENTIALS } from '../data/roleCredentials';
+
 export default function LoginView() {
-  const { login } = useWorkspace();
+  const { login, employees, updateEmployee } = useWorkspace();
   const [selectedRole, setSelectedRole] = useState<Role>('Super Admin');
-  const [email, setEmail] = useState('rajesh.kumar@ranbidge.com');
-  const [password, setPassword] = useState('••••••••••••');
+  const [email, setEmail] = useState(ROLE_CREDENTIALS['Super Admin'].email);
+  const [password, setPassword] = useState(ROLE_CREDENTIALS['Super Admin'].tempPassword);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [showForgotModal, setShowForgotModal] = useState(false);
+  const [showCredentialsModal, setShowCredentialsModal] = useState(false);
+
+  // Onboarding & Document Upload Modal States
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [selectedEmpId, setSelectedEmpId] = useState<string>('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [docAadhaar, setDocAadhaar] = useState('Uploaded_Aadhaar.pdf');
+  const [docPan, setDocPan] = useState('Uploaded_PAN.pdf');
+  const [docResume, setDocResume] = useState('Uploaded_CV.pdf');
+  const [docOffer, setDocOffer] = useState('Uploaded_Offer.pdf');
+  const [docNda, setDocNda] = useState('Signed_NDA_Digital.pdf');
+  const [onboardingSuccess, setOnboardingSuccess] = useState(false);
+
+  useEffect(() => {
+    const cred = ROLE_CREDENTIALS[selectedRole];
+    if (cred) {
+      setEmail(cred.email);
+      setPassword(cred.tempPassword);
+    }
+  }, [selectedRole]);
 
   const availableRoles: Role[] = [
     'Super Admin',
@@ -163,6 +192,22 @@ export default function LoginView() {
             </div>
           </div>
 
+          {/* Temporary Credentials Indicator Badge */}
+          <div className="p-3 bg-indigo-50/90 border border-indigo-200/90 rounded-2xl text-xs space-y-1">
+            <div className="flex items-center justify-between font-bold text-slate-800">
+              <span className="flex items-center gap-1.5 text-indigo-700">
+                <KeyRound className="w-3.5 h-3.5" />
+                <span>Temporary Password for {selectedRole}:</span>
+              </span>
+              <code className="bg-white px-2 py-0.5 border border-indigo-200 rounded-lg text-indigo-800 font-mono font-bold text-[11px] select-all shadow-2xs">
+                {ROLE_CREDENTIALS[selectedRole]?.tempPassword}
+              </code>
+            </div>
+            <p className="text-[10px] text-slate-500 font-medium leading-normal">
+              Log in with this temporary password. After opening your account, you can change your password and update all details in Profile Setup.
+            </p>
+          </div>
+
           {/* Remember Me Checkbox */}
           <div className="flex items-center justify-between pt-1">
             <label className="flex items-center space-x-2 cursor-pointer">
@@ -194,13 +239,119 @@ export default function LoginView() {
               </>
             )}
           </button>
+
+          {/* First Time Login / Credential Setup & Document Upload Action */}
+          <div className="pt-3 border-t border-slate-200/80 text-center space-y-2">
+            <button
+              type="button"
+              onClick={() => {
+                if (employees && employees.length > 0) {
+                  setSelectedEmpId(employees[0].id);
+                  const emp = employees[0];
+                  if (emp.documents) {
+                    setDocAadhaar(emp.documents.aadhaar || 'Uploaded_Aadhaar.pdf');
+                    setDocPan(emp.documents.pan || 'Uploaded_PAN.pdf');
+                    setDocResume(emp.documents.resume || 'Uploaded_CV.pdf');
+                    setDocOffer(emp.documents.offerLetter || 'Uploaded_Offer.pdf');
+                    setDocNda(emp.documents.nda || 'Signed_NDA_Digital.pdf');
+                  }
+                }
+                setShowOnboardingModal(true);
+              }}
+              className="w-full py-2.5 px-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-300/80 flex items-center justify-center space-x-2 transition-all cursor-pointer"
+            >
+              <FileBadge className="w-4 h-4 text-indigo-600 shrink-0" />
+              <span>First-Time Login? Change Password & Upload ID Proofs</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setShowCredentialsModal(true)}
+              className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 transition-colors cursor-pointer block w-full py-1"
+            >
+              📋 View All 15 Role Temporary Passwords & Emails Directory
+            </button>
+          </div>
         </form>
 
         {/* Footer Copyright */}
-        <div className="mt-8 pt-4 border-t border-slate-200/80 text-center text-[11px] text-slate-500 font-medium">
+        <div className="mt-6 pt-4 border-t border-slate-200/80 text-center text-[11px] text-slate-500 font-medium">
           © 2026 RANBIDGE Solutions Private Limited. All Rights Reserved.
         </div>
       </div>
+
+      {/* 15 Roles Credentials Directory Modal */}
+      {showCredentialsModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl p-6 shadow-2xl relative max-h-[85vh] flex flex-col">
+            <button
+              onClick={() => setShowCredentialsModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center space-x-3 mb-4 shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center shadow-xs shrink-0">
+                <KeyRound className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">All 15 System Role Mails & Temporary Passwords</h3>
+                <p className="text-xs text-slate-500 font-medium">Click any role to auto-select credentials for instant workspace login</p>
+              </div>
+            </div>
+
+            <div className="flex-1 overflow-y-auto pr-1">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="bg-slate-100 border-b border-slate-200 text-slate-700 font-mono text-[10px] uppercase font-bold">
+                    <th className="p-2.5 rounded-tl-xl">Role</th>
+                    <th className="p-2.5">Email Address</th>
+                    <th className="p-2.5">Temporary Password</th>
+                    <th className="p-2.5 rounded-tr-xl text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  {Object.entries(ROLE_CREDENTIALS).map(([rKey, cred]) => (
+                    <tr key={rKey} className="hover:bg-slate-50 transition-colors">
+                      <td className="p-2.5 font-bold text-slate-900 font-mono text-[11px]">{cred.role}</td>
+                      <td className="p-2.5 font-mono text-slate-600 text-[11px]">{cred.email}</td>
+                      <td className="p-2.5">
+                        <code className="bg-slate-100 px-2 py-0.5 border border-slate-200 rounded text-indigo-700 font-mono font-bold text-[11px]">
+                          {cred.tempPassword}
+                        </code>
+                      </td>
+                      <td className="p-2.5 text-right">
+                        <button
+                          onClick={() => {
+                            setSelectedRole(cred.role as Role);
+                            setEmail(cred.email);
+                            setPassword(cred.tempPassword);
+                            setShowCredentialsModal(false);
+                          }}
+                          className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-[10px] rounded-lg transition-all shadow-xs cursor-pointer"
+                        >
+                          Select Role
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="pt-4 border-t border-slate-200 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setShowCredentialsModal(false)}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl border border-slate-300 cursor-pointer"
+              >
+                Close Directory
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Forgot Password / Incident Mail Modal */}
       {showForgotModal && (
@@ -250,6 +401,242 @@ export default function LoginView() {
                 Close
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* First-Time Login / Document Upload & Password Change Modal */}
+      {showOnboardingModal && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+            <button
+              onClick={() => setShowOnboardingModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center space-x-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-indigo-50 border border-indigo-200 text-indigo-600 flex items-center justify-center shadow-xs shrink-0">
+                <FileBadge className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-base font-bold text-slate-900">First-Time Login & Document Setup</h3>
+                <p className="text-xs text-slate-500 font-medium">Upload ID proofs & legal archives and set your account password</p>
+              </div>
+            </div>
+
+            {onboardingSuccess && (
+              <div className="mb-4 p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl flex items-center gap-2 animate-fade-in">
+                <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>Credentials & 5 Legal Documents uploaded successfully! Signing you in...</span>
+              </div>
+            )}
+
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (newPassword && newPassword !== confirmPassword) {
+                  alert("Passwords do not match! Please check again.");
+                  return;
+                }
+                const empId = selectedEmpId || (employees && employees[0]?.id) || 'EMP-001';
+                updateEmployee(empId, {
+                  documents: {
+                    aadhaar: docAadhaar,
+                    pan: docPan,
+                    resume: docResume,
+                    offerLetter: docOffer,
+                    nda: docNda
+                  }
+                });
+                setOnboardingSuccess(true);
+                setTimeout(() => {
+                  setOnboardingSuccess(false);
+                  setShowOnboardingModal(false);
+                  login('Employee');
+                }, 1000);
+              }} 
+              className="space-y-4"
+            >
+              {/* Employee Account Selector */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 mb-1">Select Employee Account</label>
+                <select
+                  value={selectedEmpId}
+                  onChange={(e) => {
+                    const id = e.target.value;
+                    setSelectedEmpId(id);
+                    const emp = employees.find(x => x.id === id);
+                    if (emp?.documents) {
+                      setDocAadhaar(emp.documents.aadhaar || 'Uploaded_Aadhaar.pdf');
+                      setDocPan(emp.documents.pan || 'Uploaded_PAN.pdf');
+                      setDocResume(emp.documents.resume || 'Uploaded_CV.pdf');
+                      setDocOffer(emp.documents.offerLetter || 'Uploaded_Offer.pdf');
+                      setDocNda(emp.documents.nda || 'Signed_NDA_Digital.pdf');
+                    }
+                  }}
+                  className="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-600 cursor-pointer"
+                >
+                  {employees.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name} ({emp.id} • {emp.designation})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Security Password Change Section */}
+              <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-2xl space-y-3">
+                <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                  <KeyRound className="w-4 h-4 text-indigo-600" />
+                  <span>Account Password Setup</span>
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">New Security Password</label>
+                    <input
+                      type="password"
+                      placeholder="Set new password"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">Confirm Password</label>
+                    <input
+                      type="password"
+                      placeholder="Confirm password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className="w-full px-3 py-2 bg-white border border-slate-300 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-600"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* ID Proofs & Legal Archives Upload Section */}
+              <div className="space-y-2">
+                <span className="text-xs font-bold text-slate-800 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <FileText className="w-4 h-4 text-indigo-600" />
+                    <span>ID Proofs & Legal Archives Upload</span>
+                  </span>
+                  <span className="text-[10px] text-slate-500 font-mono">5 Documents Required</span>
+                </span>
+
+                <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                  {/* 1. Aadhaar */}
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div className="flex items-center space-x-2 truncate min-w-0 pr-2">
+                      <FileBadge className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span className="font-bold text-slate-800 shrink-0 font-mono">AADHAAR:</span>
+                      <span className="text-slate-600 font-mono truncate text-[11px]">{docAadhaar}</span>
+                    </div>
+                    <label className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg cursor-pointer transition-all shrink-0">
+                      Upload
+                      <input 
+                        type="file" 
+                        accept=".pdf,.png,.jpg"
+                        onChange={(e) => { if(e.target.files?.[0]) setDocAadhaar(e.target.files[0].name); }} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
+
+                  {/* 2. PAN */}
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div className="flex items-center space-x-2 truncate min-w-0 pr-2">
+                      <FileBadge className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span className="font-bold text-slate-800 shrink-0 font-mono">PAN:</span>
+                      <span className="text-slate-600 font-mono truncate text-[11px]">{docPan}</span>
+                    </div>
+                    <label className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg cursor-pointer transition-all shrink-0">
+                      Upload
+                      <input 
+                        type="file" 
+                        accept=".pdf,.png,.jpg"
+                        onChange={(e) => { if(e.target.files?.[0]) setDocPan(e.target.files[0].name); }} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
+
+                  {/* 3. RESUME */}
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div className="flex items-center space-x-2 truncate min-w-0 pr-2">
+                      <FileBadge className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span className="font-bold text-slate-800 shrink-0 font-mono">RESUME:</span>
+                      <span className="text-slate-600 font-mono truncate text-[11px]">{docResume}</span>
+                    </div>
+                    <label className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg cursor-pointer transition-all shrink-0">
+                      Upload
+                      <input 
+                        type="file" 
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => { if(e.target.files?.[0]) setDocResume(e.target.files[0].name); }} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
+
+                  {/* 4. OFFER LETTER */}
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div className="flex items-center space-x-2 truncate min-w-0 pr-2">
+                      <FileBadge className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span className="font-bold text-slate-800 shrink-0 font-mono">OFFERLETTER:</span>
+                      <span className="text-slate-600 font-mono truncate text-[11px]">{docOffer}</span>
+                    </div>
+                    <label className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg cursor-pointer transition-all shrink-0">
+                      Upload
+                      <input 
+                        type="file" 
+                        accept=".pdf,.png,.jpg"
+                        onChange={(e) => { if(e.target.files?.[0]) setDocOffer(e.target.files[0].name); }} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
+
+                  {/* 5. NDA */}
+                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between text-xs">
+                    <div className="flex items-center space-x-2 truncate min-w-0 pr-2">
+                      <FileBadge className="w-4 h-4 text-indigo-600 shrink-0" />
+                      <span className="font-bold text-slate-800 shrink-0 font-mono">NDA:</span>
+                      <span className="text-slate-600 font-mono truncate text-[11px]">{docNda}</span>
+                    </div>
+                    <label className="px-2.5 py-1 bg-white border border-slate-300 hover:bg-indigo-50 text-indigo-600 text-[10px] font-bold rounded-lg cursor-pointer transition-all shrink-0">
+                      Upload
+                      <input 
+                        type="file" 
+                        accept=".pdf,.png,.jpg"
+                        onChange={(e) => { if(e.target.files?.[0]) setDocNda(e.target.files[0].name); }} 
+                        className="hidden" 
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-2 pt-2">
+                <button
+                  type="submit"
+                  className="flex-1 py-3 px-4 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xs rounded-xl shadow-lg shadow-indigo-600/20 flex items-center justify-center space-x-2 cursor-pointer transition-all"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Save Documents & Proceed to Workspace</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowOnboardingModal(false)}
+                  className="px-4 py-3 text-xs text-slate-600 hover:bg-slate-100 rounded-xl font-semibold cursor-pointer border border-slate-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

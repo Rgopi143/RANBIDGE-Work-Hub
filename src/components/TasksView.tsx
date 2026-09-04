@@ -56,7 +56,7 @@ export default function TasksView() {
 
   const selectedTask = tasks.find(t => t.id === selectedTaskId) || tasks[0];
 
-  const hasAssignAuthority = ['Super Admin', 'Manager', 'Team Lead'].includes(currentRole);
+  const hasAssignAuthority = ['Super Admin', 'CEO', 'CTO', 'COO', 'CMO', 'HR', 'Manager', 'Project Manager', 'Team Lead'].includes(currentRole);
 
   const triggerAISuggestions = async () => {
     if (!taskDesc.trim()) {

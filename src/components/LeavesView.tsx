@@ -47,7 +47,7 @@ export default function LeavesView() {
     setReason('');
   };
 
-  const hasAuthorizedApproverClass = ['Super Admin', 'HR', 'Manager'].includes(currentRole);
+  const hasAuthorizedApproverClass = ['Super Admin', 'CEO', 'CFO', 'CTO', 'COO', 'CMO', 'HR', 'Manager', 'Project Manager', 'Team Lead'].includes(currentRole);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

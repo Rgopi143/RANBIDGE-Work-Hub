@@ -43,7 +43,7 @@ export default function Sidebar({ activeTab, setActiveTab, isMobileOpen = false,
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ALL_ROLES },
-    { id: 'employees', label: 'Employees', icon: Users, roles: ADMIN_ROLES },
+    { id: 'employees', label: 'Employees', icon: Users, roles: ALL_ROLES.filter(r => r !== 'Intern') },
     { id: 'teams', label: 'Teams & Chat', icon: Building, roles: ALL_ROLES },
     { id: 'projects', label: 'Projects', icon: Briefcase, roles: ALL_ROLES },
     { id: 'tasks', label: 'Task Console', icon: CheckSquare, roles: ALL_ROLES },

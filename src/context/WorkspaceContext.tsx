@@ -131,85 +131,52 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     return saved || 'minimal-warm';
   });
 
-  const [employees, setEmployees] = useState<Employee[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'employees');
-    return saved ? JSON.parse(saved) : INITIAL_EMPLOYEES;
-  });
+  const loadInitialState = <T,>(key: string, fallback: T[]): T[] => {
+    const saved = localStorage.getItem(STORAGE_PREFIX + key);
+    if (saved !== null) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+    }
+    return fallback;
+  };
 
-  const [teams, setTeams] = useState<Team[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'teams');
-    return saved ? JSON.parse(saved) : INITIAL_TEAMS;
-  });
-
-  const [projects, setProjects] = useState<Project[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'projects');
-    return saved ? JSON.parse(saved) : INITIAL_PROJECTS;
-  });
-
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'tasks');
-    return saved ? JSON.parse(saved) : INITIAL_TASKS;
-  });
-
-  const [attendance, setAttendance] = useState<AttendanceRecord[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'attendance');
-    return saved ? JSON.parse(saved) : INITIAL_ATTENDANCE;
-  });
-
-  const [leaves, setLeaves] = useState<LeaveRequest[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'leaves');
-    return saved ? JSON.parse(saved) : INITIAL_LEAVES;
-  });
-
-  const [payroll, setPayroll] = useState<PayrollItem[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'payroll');
-    return saved ? JSON.parse(saved) : INITIAL_PAYROLL;
-  });
-
-  const [kpis, setKpis] = useState<PerformanceKPI[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'kpis');
-    return saved ? JSON.parse(saved) : INITIAL_KPIS;
-  });
-
-  const [documents, setDocuments] = useState<CompanyDocument[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'documents');
-    return saved ? JSON.parse(saved) : INITIAL_DOCUMENTS;
-  });
-
-  const [announcements, setAnnouncements] = useState<Announcement[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'announcements');
-    return saved ? JSON.parse(saved) : INITIAL_ANNOUNCEMENTS;
-  });
-
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => {
-    const saved = localStorage.getItem(STORAGE_PREFIX + 'chatMessages');
-    return saved ? JSON.parse(saved) : INITIAL_CHAT;
-  });
+  const [employees, setEmployees] = useState<Employee[]>(() => loadInitialState('employees', INITIAL_EMPLOYEES));
+  const [teams, setTeams] = useState<Team[]>(() => loadInitialState('teams', INITIAL_TEAMS));
+  const [projects, setProjects] = useState<Project[]>(() => loadInitialState('projects', INITIAL_PROJECTS));
+  const [tasks, setTasks] = useState<Task[]>(() => loadInitialState('tasks', INITIAL_TASKS));
+  const [attendance, setAttendance] = useState<AttendanceRecord[]>(() => loadInitialState('attendance', INITIAL_ATTENDANCE));
+  const [leaves, setLeaves] = useState<LeaveRequest[]>(() => loadInitialState('leaves', INITIAL_LEAVES));
+  const [payroll, setPayroll] = useState<PayrollItem[]>(() => loadInitialState('payroll', INITIAL_PAYROLL));
+  const [kpis, setKpis] = useState<PerformanceKPI[]>(() => loadInitialState('kpis', INITIAL_KPIS));
+  const [documents, setDocuments] = useState<CompanyDocument[]>(() => loadInitialState('documents', INITIAL_DOCUMENTS));
+  const [announcements, setAnnouncements] = useState<Announcement[]>(() => loadInitialState('announcements', INITIAL_ANNOUNCEMENTS));
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(() => loadInitialState('chatMessages', INITIAL_CHAT));
 
   const [currentUser, setCurrentUser] = useState<Employee | null>(null);
 
-  // Sync state to local storage to persist
+  // Sync state from Turso Database on mount
   useEffect(() => {
-    // Automatically purge old demo sample data from local storage if detected
-    const storedEmps = localStorage.getItem(STORAGE_PREFIX + 'employees');
-    if (storedEmps && (storedEmps.includes('EMP-001') || storedEmps.includes('Rajesh Kumar'))) {
-      const keysToClear = [
-        'employees', 'teams', 'projects', 'tasks', 'attendance',
-        'leaves', 'payroll', 'kpis', 'documents', 'announcements', 'chatMessages'
-      ];
-      keysToClear.forEach(key => localStorage.removeItem(STORAGE_PREFIX + key));
-      setEmployees([]);
-      setTeams([]);
-      setProjects([]);
-      setTasks([]);
-      setAttendance([]);
-      setLeaves([]);
-      setPayroll([]);
-      setKpis([]);
-      setDocuments([]);
-      setAnnouncements([]);
-      setChatMessages([]);
-    }
+    fetch('/api/db/data')
+      .then(res => res.json())
+      .then(result => {
+        if (result.success && result.data) {
+          if (Array.isArray(result.data.employees)) setEmployees(result.data.employees);
+          if (Array.isArray(result.data.teams)) setTeams(result.data.teams);
+          if (Array.isArray(result.data.projects)) setProjects(result.data.projects);
+          if (Array.isArray(result.data.tasks)) setTasks(result.data.tasks);
+          if (Array.isArray(result.data.attendance)) setAttendance(result.data.attendance);
+          if (Array.isArray(result.data.leaves)) setLeaves(result.data.leaves);
+          if (Array.isArray(result.data.payroll)) setPayroll(result.data.payroll);
+          if (Array.isArray(result.data.kpis)) setKpis(result.data.kpis);
+          if (Array.isArray(result.data.announcements)) setAnnouncements(result.data.announcements);
+          if (Array.isArray(result.data.documents)) setDocuments(result.data.documents);
+        }
+      })
+      .catch(err => {
+        console.log('Local storage persistence fallback active:', err);
+      });
   }, []);
 
   useEffect(() => {
@@ -267,15 +234,55 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   // Determine active profile based on simulated Role
   useEffect(() => {
-    let mappingId = 'EMP-001'; // Default Super Admin = Rajesh
-    if (currentRole === 'HR') mappingId = 'EMP-002'; // Priya
-    else if (currentRole === 'Manager') mappingId = 'EMP-003'; // Amit
-    else if (currentRole === 'Team Lead') mappingId = 'EMP-004'; // Sarah (Web Lead)
-    else if (currentRole === 'Employee') mappingId = 'EMP-005'; // Vikram (AI Eng)
-    else if (currentRole === 'Intern') mappingId = 'EMP-007'; // Rahul (Intern)
+    const savedUserStr = localStorage.getItem(STORAGE_PREFIX + 'user_' + currentRole);
+    let savedUser: Employee | null = null;
+    if (savedUserStr) {
+      try { savedUser = JSON.parse(savedUserStr); } catch (e) {}
+    }
 
-    const match = employees.find(e => e.id === mappingId);
-    setCurrentUser(match || employees[0] || null);
+    const match = employees.find(e => 
+      e.designation.toLowerCase() === currentRole.toLowerCase() ||
+      e.designation.toLowerCase().includes(currentRole.toLowerCase()) ||
+      (currentRole === 'HR' && e.department === 'Human Resources') ||
+      (currentRole === 'Social Media Manager' && e.designation.includes('Social Media'))
+    );
+
+    if (savedUser) {
+      setCurrentUser(savedUser);
+    } else if (match) {
+      setCurrentUser(match);
+    } else {
+      const base = employees[0];
+      const roleDefault: Employee = {
+        id: base?.id || `EMP-${currentRole.toUpperCase().replace(/\s+/g, '-')}-001`,
+        name: base?.name || 'Kakara Lavanya',
+        photo: base?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300',
+        gender: base?.gender || 'Female',
+        dob: base?.dob || '1998-05-15',
+        mobile: base?.mobile || '8341133750',
+        email: base?.email || 'lavanyakakara8@gmail.com',
+        address: base?.address || 'HSR Layout, Sector 2, Bengaluru, Karnataka 560102',
+        department: currentRole === 'HR' ? 'Human Resources' : (currentRole === 'Social Media Manager' ? 'Marketing' : (base?.department || 'Operations')),
+        designation: currentRole,
+        skills: base?.skills || ['Operations Management', 'Strategy'],
+        experience: base?.experience || '1 Year',
+        joiningDate: base?.joiningDate || '2026-09-04',
+        reportingManagerId: base?.reportingManagerId || 'EMP-003',
+        reportingManagerName: base?.reportingManagerName || 'Amit Patel',
+        salary: base?.salary || 120000,
+        shiftTiming: base?.shiftTiming || '09:30 AM - 06:30 PM',
+        employmentType: base?.employmentType || 'Full-Time',
+        status: base?.status || 'Active',
+        documents: base?.documents || {
+          aadhaar: 'Uploaded_Aadhaar.pdf',
+          pan: 'Uploaded_PAN.pdf',
+          resume: 'Uploaded_CV.pdf',
+          offerLetter: 'Uploaded_Offer.pdf',
+          nda: 'Signed_NDA_Digital.pdf'
+        }
+      };
+      setCurrentUser(roleDefault);
+    }
   }, [currentRole, employees]);
 
   const setCurrentRole = (role: Role) => {
@@ -333,8 +340,44 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   const updateEmployee = (id: string, updatedFields: Partial<Employee>) => {
     setEmployees(prev => {
-      const updated = prev.map(e => e.id === id ? { ...e, ...updatedFields } : e);
-      const target = updated.find(e => e.id === id);
+      const exists = prev.some(e => e.id === id);
+      let updatedList: Employee[];
+      if (exists) {
+        updatedList = prev.map(e => e.id === id ? { ...e, ...updatedFields } : e);
+      } else {
+        const baseUser = currentUser || prev[0];
+        const newEmp: Employee = {
+          id: id,
+          name: baseUser?.name || 'Kakara Lavanya',
+          photo: baseUser?.photo || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300',
+          gender: baseUser?.gender || 'Female',
+          dob: baseUser?.dob || '1998-05-15',
+          mobile: baseUser?.mobile || '8341133750',
+          email: baseUser?.email || 'lavanyakakara8@gmail.com',
+          address: baseUser?.address || 'HSR Layout, Sector 2, Bengaluru, Karnataka 560102',
+          department: baseUser?.department || 'Operations',
+          designation: baseUser?.designation || currentRole,
+          skills: baseUser?.skills || ['Operations Management'],
+          experience: baseUser?.experience || '1 Year',
+          joiningDate: baseUser?.joiningDate || '2026-09-04',
+          reportingManagerId: baseUser?.reportingManagerId || 'EMP-003',
+          reportingManagerName: baseUser?.reportingManagerName || 'Amit Patel',
+          salary: baseUser?.salary || 120000,
+          shiftTiming: baseUser?.shiftTiming || '09:30 AM - 06:30 PM',
+          employmentType: baseUser?.employmentType || 'Full-Time',
+          status: baseUser?.status || 'Active',
+          documents: baseUser?.documents || {
+            aadhaar: 'Uploaded_Aadhaar.pdf',
+            pan: 'Uploaded_PAN.pdf',
+            resume: 'Uploaded_CV.pdf',
+            offerLetter: 'Uploaded_Offer.pdf',
+            nda: 'Signed_NDA_Digital.pdf'
+          },
+          ...updatedFields
+        };
+        updatedList = [...prev, newEmp];
+      }
+      const target = updatedList.find(e => e.id === id);
       if (target) {
         fetch('/api/db/employees', {
           method: 'POST',
@@ -342,7 +385,16 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify(target)
         }).catch(() => {});
       }
-      return updated;
+      return updatedList;
+    });
+
+    setCurrentUser(prev => {
+      if (prev) {
+        const updatedUser = { ...prev, ...updatedFields };
+        localStorage.setItem(STORAGE_PREFIX + 'user_' + currentRole, JSON.stringify(updatedUser));
+        return updatedUser;
+      }
+      return prev;
     });
   };
 
@@ -454,6 +506,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       version: '1.0'
     };
     setDocuments(prev => [...prev, newDoc]);
+    fetch('/api/db/documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newDoc)
+    }).catch(() => {});
   };
 
   // 4. Task CRUD
@@ -645,19 +702,25 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
 
   // 8. Documents CRUD
   const addDocument = (rawDoc: Omit<CompanyDocument, 'id' | 'uploadedAt' | 'uploader'>) => {
-    const nextId = `DOC-${(documents.length + 701).toString()}`;
+    const nextId = `DOC-${Date.now()}`;
     const today = new Date().toISOString().split('T')[0];
     const newDoc: CompanyDocument = {
       ...rawDoc,
       id: nextId,
-      uploader: currentUser?.name || 'System User',
+      uploader: `${currentUser?.name || 'Authorized User'} (${currentRole})`,
       uploadedAt: today
     };
     setDocuments(prev => [newDoc, ...prev]);
+    fetch('/api/db/documents', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newDoc)
+    }).catch(err => console.error('DB Document Sync Error:', err));
   };
 
   const deleteDocument = (id: string) => {
     setDocuments(prev => prev.filter(d => d.id !== id));
+    fetch(`/api/db/documents/${id}`, { method: 'DELETE' }).catch(err => console.error('DB Document Delete Error:', err));
   };
 
   // 9. Announcements CRUD
@@ -694,6 +757,11 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     };
 
     setChatMessages(prev => [...prev, newMsg]);
+    fetch('/api/db/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newMsg)
+    }).catch(() => {});
 
     // Fast simulated AI responding if the user asks AI or tests in the AI chat
     if (teamId === 'TEAM-001' && (msg.toLowerCase().includes('ai') || msg.toLowerCase().includes('bot') || msg.toLowerCase().includes('hello') || msg.startsWith('/ai'))) {
@@ -715,7 +783,12 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         };
         setChatMessages(prev => [...prev, aiMsg]);
-      }, 1500);
+        fetch('/api/db/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(aiMsg)
+        }).catch(() => {});
+      }, 700);
     }
   };
 
@@ -832,15 +905,18 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
       // Local parsing and answering simulator to make it 100% bulletproof
       const lower = chatPrompt.toLowerCase();
       if (lower.includes('delayed') || lower.includes('late')) {
-        return `I parsed your active tasks and found **2 delayed items**:
-1. **TSK-203 (Design SBI Landing Dashboard Grid)** by **Rahul Verma** (Deadline was 2026-05-20, delayed due to nested styling dependencies).
-2. **TSK-205 (Secure SPI Firmware Headers)** by **Sanjay Rao** (Deadline was 2026-05-15, delayed due to microcontroller hardware debugging clocks).
-
-Would you like me to draft direct notification reminders or schedule a peer troubleshooting code review?`;
+        const delayedList = tasks.filter(t => t.status === 'Delayed');
+        if (delayedList.length === 0) {
+          return "I parsed your database tasks and found **0 delayed items**. All operational tasks are currently running on schedule!";
+        }
+        return `I parsed your active tasks from the database and found **${delayedList.length} delayed item(s)**:\n` +
+          delayedList.map((t, idx) => `${idx + 1}. **${t.id} (${t.name})** assigned to **${t.assignedEmployeeName}** (Deadline: ${t.deadline}).`).join('\n') +
+          `\n\nWould you like me to send reminders or update delivery schedules?`;
       }
 
       if (lower.includes('assign') || lower.includes('recommend')) {
-        return `Sure! For a task related to "LLM Prompt fine tuning", I would recommend **TEAM-001 (AI & LangModel Team)** with **Rajesh Kumar** or **Vikram Singh** because they carry specific skill scores of 94%+ in PyTorch, transformers, and prompt engineering. If you describe the specific task, I can auto-populate its priority and route it!`;
+        const activeEmp = employees[0]?.name || 'Available Team Member';
+        return `Based on active workload and department skills, I recommend assigning tasks to **${activeEmp}**. If you describe the specific deliverable, I can auto-route it in the database!`;
       }
 
       return `Welcome to **RAN Co-Pilot AI Workspace**! I am connected to the RANBIDGE database.

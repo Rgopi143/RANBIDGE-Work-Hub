@@ -38,7 +38,8 @@ export default function ProjectsView() {
     addProject,
     deleteProject,
     uploadProjectFile,
-    tasks
+    tasks,
+    employees
   } = useWorkspace();
 
   const [showAddProject, setShowAddProject] = useState(false);
@@ -54,6 +55,9 @@ export default function ProjectsView() {
   const [teamAssignedId, setTeamAssignedId] = useState('TEAM-001');
   const [budget, setBudget] = useState(1000000);
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('High');
+  const [projMentorId, setProjMentorId] = useState('EMP-013');
+  const [projGuideId, setProjGuideId] = useState('EMP-012');
+  const [projInternId, setProjInternId] = useState('EMP-015');
 
   // Simulated drag-over highlight state for uploading project agreements
   const [isDragOver, setIsDragOver] = useState(false);
@@ -181,11 +185,15 @@ export default function ProjectsView() {
     return null;
   };
 
-  const hasManagerAuthority = ['Super Admin', 'Manager', 'Team Lead'].includes(currentRole);
+  const hasManagerAuthority = ['Super Admin', 'CEO', 'CFO', 'CTO', 'COO', 'CMO', 'HR', 'Manager', 'Project Manager', 'Team Lead'].includes(currentRole);
 
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
     const activeTeam = teams.find(t => t.id === teamAssignedId);
+    const mentorEmp = employees.find(emp => emp.id === projMentorId);
+    const guideEmp = employees.find(emp => emp.id === projGuideId);
+    const internEmp = employees.find(emp => emp.id === projInternId);
+
     addProject({
       name: projName,
       description: projDesc,
@@ -196,7 +204,13 @@ export default function ProjectsView() {
       teamAssignedName: activeTeam ? activeTeam.name : 'Unassigned',
       budget: Number(budget),
       priority,
-      status: 'Pending'
+      status: 'Pending',
+      mentorId: projMentorId,
+      mentorName: mentorEmp ? mentorEmp.name : 'Dr. Anita Joshi',
+      guideId: projGuideId,
+      guideName: guideEmp ? guideEmp.name : 'Suresh Reddy',
+      internIds: [projInternId],
+      internNames: internEmp ? [internEmp.name] : ['Neha Kapoor']
     });
     setShowAddProject(false);
     setProjName('');
@@ -283,7 +297,7 @@ export default function ProjectsView() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in-up">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-[#1A1A1A]">
 
       {/* Left Columns - Projects Selection Menu */}
@@ -386,6 +400,22 @@ export default function ProjectsView() {
                   <Layers className="h-4 w-4 text-[#1A1A1A] shrink-0" />
                   <span>{selectedProject.teamAssignedName}</span>
                 </div>
+              </div>
+            </div>
+
+            {/* Allotted Mentors, Guides & Interns */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono">
+              <div className="p-3 bg-indigo-50/60 border border-indigo-200/80 rounded-none space-y-1">
+                <span className="text-[9px] font-mono text-indigo-700 block font-bold uppercase">ALLOTTED MENTOR</span>
+                <span className="font-bold text-indigo-950 block truncate">{selectedProject.mentorName || 'Dr. Anita Joshi (Mentor)'}</span>
+              </div>
+              <div className="p-3 bg-emerald-50/60 border border-emerald-200/80 rounded-none space-y-1">
+                <span className="text-[9px] font-mono text-emerald-700 block font-bold uppercase">ALLOTTED GUIDE</span>
+                <span className="font-bold text-emerald-950 block truncate">{selectedProject.guideName || 'Suresh Reddy (Guide)'}</span>
+              </div>
+              <div className="p-3 bg-amber-50/60 border border-amber-200/80 rounded-none space-y-1">
+                <span className="text-[9px] font-mono text-amber-800 block font-bold uppercase">ASSIGNED INTERN</span>
+                <span className="font-bold text-amber-950 block truncate">{selectedProject.internNames?.join(', ') || 'Neha Kapoor (Intern)'}</span>
               </div>
             </div>
 
@@ -543,6 +573,49 @@ export default function ProjectsView() {
                     ))}
                   </select>
                 </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-indigo-600 font-mono uppercase block">Allot Mentor</label>
+                  <select
+                    value={projMentorId}
+                    onChange={e => setProjMentorId(e.target.value)}
+                    className="w-full bg-[#F9F7F4] border border-indigo-200 rounded-none px-3 py-2 text-xs focus:outline-none focus:border-indigo-600 text-[#1A1A1A] cursor-pointer"
+                  >
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-emerald-600 font-mono uppercase block">Allot Guide</label>
+                  <select
+                    value={projGuideId}
+                    onChange={e => setProjGuideId(e.target.value)}
+                    className="w-full bg-[#F9F7F4] border border-emerald-200 rounded-none px-3 py-2 text-xs focus:outline-none focus:border-emerald-600 text-[#1A1A1A] cursor-pointer"
+                  >
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-amber-700 font-mono uppercase block">Add Intern to Project</label>
+                <select
+                  value={projInternId}
+                  onChange={e => setProjInternId(e.target.value)}
+                  className="w-full bg-[#F9F7F4] border border-amber-200 rounded-none px-3 py-2 text-xs focus:outline-none focus:border-amber-600 text-[#1A1A1A] cursor-pointer"
+                >
+                  {employees.filter(emp => emp.employmentType === 'Intern' || emp.designation === 'Intern' || emp.id === 'EMP-015').map(emp => (
+                    <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                  ))}
+                  {employees.filter(emp => emp.employmentType !== 'Intern' && emp.id !== 'EMP-015').map(emp => (
+                    <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                  ))}
+                </select>
               </div>
               <button
                 type="submit"

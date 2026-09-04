@@ -16,6 +16,7 @@ import {
   Send,
   CalendarCheck,
   CheckCircle2,
+  CheckSquare,
   TrendingUp,
   Activity,
   Layers,
@@ -110,17 +111,23 @@ export default function DashboardView({ setActiveTab }: DashboardViewProps) {
   const overdueList = tasks.filter(t => t.status === 'Delayed');
 
   return (
-    <div className="space-y-6 pb-12">
+    <div className="space-y-6 pb-12 animate-fade-in-up">
       {/* Header Banner */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 border border-indigo-500/20 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="space-y-1">
           <div className="flex items-center space-x-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">OPERATIONS CONTROL CENTER</span>
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-400/30">
+              {currentRole === 'Intern' ? 'INTERN WORKSPACE HUB' : 'OPERATIONS CONTROL CENTER'}
+            </span>
             <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
           </div>
-          <h2 className="text-2xl font-extrabold tracking-tight">RANBIDGE Workspace Dashboard</h2>
+          <h2 className="text-2xl font-extrabold tracking-tight">
+            {currentRole === 'Intern' ? 'RANBIDGE Intern Learning & Task Console' : 'RANBIDGE Workspace Dashboard'}
+          </h2>
           <p className="text-xs text-indigo-200/80 leading-relaxed max-w-xl">
-            Live operational intelligence, AI resource allocation, and real-time database sync for <span className="font-semibold text-white">RANBIDGE Solutions</span>.
+            {currentRole === 'Intern'
+              ? 'Track your assigned tasks, attendance logs, team channels, and performance milestones for RANBIDGE Solutions.'
+              : 'Live operational intelligence, AI resource allocation, and real-time database sync for RANBIDGE Solutions.'}
           </p>
         </div>
 
@@ -153,24 +160,45 @@ export default function DashboardView({ setActiveTab }: DashboardViewProps) {
 
       {/* Bento Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div
-          onClick={() => setActiveTab('employees')}
-          className="p-5 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-xs hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-[var(--theme-muted)]">Workforce</span>
-            <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-500 group-hover:scale-110 transition-transform">
-              <Users className="h-5 w-5" />
+        {currentRole === 'Intern' ? (
+          <div
+            onClick={() => setActiveTab('tasks')}
+            className="p-5 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-xs hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-[var(--theme-muted)]">My Tasks</span>
+              <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-500 group-hover:scale-110 transition-transform">
+                <CheckSquare className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <h3 className="text-3xl font-extrabold text-[var(--theme-text)]">{tasks.length}</h3>
+              <p className="text-[10px] text-[var(--theme-muted)] mt-1 flex items-center gap-1 font-medium">
+                <TrendingUp className="h-3 w-3 text-emerald-500" />
+                <span>Assigned intern tasks</span>
+              </p>
             </div>
           </div>
-          <div className="mt-3">
-            <h3 className="text-3xl font-extrabold text-[var(--theme-text)]">{totalEmployees}</h3>
-            <p className="text-[10px] text-[var(--theme-muted)] mt-1 flex items-center gap-1 font-medium">
-              <TrendingUp className="h-3 w-3 text-emerald-500" />
-              <span>Active headcount</span>
-            </p>
+        ) : (
+          <div
+            onClick={() => setActiveTab('employees')}
+            className="p-5 rounded-2xl bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-xs hover:shadow-lg transition-all cursor-pointer group hover:-translate-y-1"
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold font-mono uppercase tracking-wider text-[var(--theme-muted)]">Workforce</span>
+              <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-500 group-hover:scale-110 transition-transform">
+                <Users className="h-5 w-5" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <h3 className="text-3xl font-extrabold text-[var(--theme-text)]">{totalEmployees}</h3>
+              <p className="text-[10px] text-[var(--theme-muted)] mt-1 flex items-center gap-1 font-medium">
+                <TrendingUp className="h-3 w-3 text-emerald-500" />
+                <span>Active headcount</span>
+              </p>
+            </div>
           </div>
-        </div>
+        )}
 
         <div
           onClick={() => setActiveTab('teams')}

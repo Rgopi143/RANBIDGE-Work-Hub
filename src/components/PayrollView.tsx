@@ -67,7 +67,7 @@ export default function PayrollView() {
     window.print();
   };
 
-  const hasHRAccess = ['Super Admin', 'HR'].includes(currentRole);
+  const hasHRAccess = ['Super Admin', 'CEO', 'CFO', 'HR', 'Manager'].includes(currentRole);
 
   return (
     <div className="space-y-6 text-[#1A1A1A]">

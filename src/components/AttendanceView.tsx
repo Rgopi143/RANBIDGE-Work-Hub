@@ -74,7 +74,7 @@ export default function AttendanceView() {
   const displayLogs = attendance.filter(log => log.date === todayStr || log.date === '2026-05-24');
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-[#1A1A1A]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-[#1A1A1A] animate-fade-in-up">
       
       {/* Central Face Biometric Check-In scanner card */}
       <div className="lg:col-span-1 space-y-4">
@@ -87,17 +87,17 @@ export default function AttendanceView() {
           </div>
 
           {/* Virtual Camera scanner canvas box */}
-          <div className="relative mx-auto w-44 h-44 border border-[#1A1A1A]/10 rounded-full flex flex-col items-center justify-center overflow-hidden bg-[#F9F7F4] ring-1 ring-[#1A1A1A]/10">
+          <div className="relative mx-auto w-44 h-44 border border-[#1A1A1A]/20 rounded-full flex flex-col items-center justify-center overflow-hidden bg-[#F9F7F4] ring-2 ring-amber-500/20 shadow-md">
             {isScanning ? (
               <>
+                <div className="animate-laser-scan" />
                 <div className="absolute inset-0 bg-[#1A1A1A]/5 animate-pulse" />
-                <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#1A1A1A]/30 to-[#1A1A1A]/90 rounded animate-scan-line shadow-lg" />
                 {currentUser?.faceIdEnrollment ? (
                   <img src={currentUser.faceIdEnrollment} alt="Scanning face snapshot" className="w-full h-full object-cover blur-[0.5px]" referrerPolicy="no-referrer" />
                 ) : (
-                  <Camera className="h-10 w-10 text-[#1A1A1A] animate-pulse" />
+                  <Camera className="h-10 w-10 text-amber-700 animate-pulse" />
                 )}
-                <p className="text-[9px] font-mono font-bold tracking-wider text-white mt-2 absolute bottom-4 bg-[#1A1A1A]/85 px-2 py-0.5 uppercase">ALIGNED • SCANNING</p>
+                <p className="text-[9px] font-mono font-bold tracking-wider text-white mt-2 absolute bottom-4 bg-[#1A1A1A]/85 px-2 py-0.5 uppercase z-30">ALIGNED • SCANNING</p>
               </>
             ) : scanStatus === 'success' || currentUserTodayLog ? (
               <>

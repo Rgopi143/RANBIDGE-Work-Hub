@@ -50,7 +50,10 @@ export default function TeamsView() {
   // Add team form states
   const [teamName, setTeamName] = useState('');
   const [teamDesc, setTeamDesc] = useState('');
-  const [teamLeadId, setTeamLeadId] = useState('EMP-001');
+  const [teamLeadId, setTeamLeadId] = useState('EMP-010');
+  const [teamMentorId, setTeamMentorId] = useState('EMP-013');
+  const [teamGuideId, setTeamGuideId] = useState('EMP-012');
+  const [teamInternId, setTeamInternId] = useState('EMP-015');
 
   const selectedTeam = teams.find(t => t.id === activeTeamId) || teams[0];
   const selectedTeamMessages = chatMessages.filter(msg => msg.teamId === activeTeamId);
@@ -65,13 +68,25 @@ export default function TeamsView() {
   const handleCreateTeam = (e: React.FormEvent) => {
     e.preventDefault();
     const leadEmp = employees.find(emp => emp.id === teamLeadId);
+    const mentorEmp = employees.find(emp => emp.id === teamMentorId);
+    const guideEmp = employees.find(emp => emp.id === teamGuideId);
+    const internEmp = employees.find(emp => emp.id === teamInternId);
+
+    const members = Array.from(new Set([teamLeadId, teamMentorId, teamGuideId, teamInternId]));
+
     addTeam({
       name: teamName,
       description: teamDesc,
       leaderId: teamLeadId,
       leaderName: leadEmp ? leadEmp.name : 'Unassigned',
-      memberIds: [teamLeadId],
-      productivityScore: 80
+      memberIds: members,
+      productivityScore: 85,
+      mentorId: teamMentorId,
+      mentorName: mentorEmp ? mentorEmp.name : 'Dr. Anita Joshi (Mentor)',
+      guideId: teamGuideId,
+      guideName: guideEmp ? guideEmp.name : 'Suresh Reddy (Guide)',
+      internIds: [teamInternId],
+      internNames: internEmp ? [internEmp.name] : ['Neha Kapoor (Intern)']
     });
     setShowAddTeam(false);
     setTeamName('');
@@ -90,7 +105,7 @@ export default function TeamsView() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-[#1A1A1A]">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-[#1A1A1A] animate-fade-in-up">
       
       {/* Left side: Teams Menu & Directory */}
       <div className="lg:col-span-1 space-y-4">
@@ -148,20 +163,62 @@ export default function TeamsView() {
               <h3 className="text-xs font-bold text-[#1A1A1A] font-mono tracking-wider uppercase">Team Resources Allocation</h3>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 font-mono text-xs">
               <div className="space-y-1">
                 <span className="text-[9px] font-mono font-bold text-[#8C8984] uppercase block">TEAM LEADER (Assigned)</span>
-                <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] rounded-none flex items-center space-x-2 text-xs">
+                <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] rounded-none flex items-center space-x-2">
                   <div className="h-2 w-2 rounded-full bg-[#1A1A1A] shrink-0" />
                   <span className="font-bold text-[#1A1A1A]">{selectedTeam.leaderName}</span>
                 </div>
               </div>
 
+              {/* Allotted Mentor */}
               <div className="space-y-1">
-                <span className="text-[9px] font-mono font-bold text-[#8C8984] uppercase block">Active Board Members</span>
-                <div className="space-y-1">
+                <span className="text-[9px] font-mono font-bold text-indigo-600 uppercase block">ALLOTTED MENTOR</span>
+                <div className="p-2.5 bg-indigo-50/60 border border-indigo-200/80 rounded-none flex items-center space-x-2">
+                  <Award className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
+                  <span className="font-bold text-indigo-950">{selectedTeam.mentorName || 'Dr. Anita Joshi (Mentor)'}</span>
+                </div>
+              </div>
+
+              {/* Allotted Guide */}
+              <div className="space-y-1">
+                <span className="text-[9px] font-mono font-bold text-emerald-600 uppercase block">ALLOTTED GUIDE</span>
+                <div className="p-2.5 bg-emerald-50/60 border border-emerald-200/80 rounded-none flex items-center space-x-2">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-600 shrink-0" />
+                  <span className="font-bold text-emerald-950">{selectedTeam.guideName || 'Suresh Reddy (Guide)'}</span>
+                </div>
+              </div>
+
+              {/* Assigned Interns */}
+              <div className="space-y-1">
+                <span className="text-[9px] font-mono font-bold text-amber-700 uppercase block">ASSIGNED INTERNS</span>
+                <div className="p-2.5 bg-amber-50/60 border border-amber-200/80 rounded-none space-y-1">
+                  {(selectedTeam.internNames && selectedTeam.internNames.length > 0
+                    ? selectedTeam.internNames
+                    : ['Neha Kapoor (Intern)']
+                  ).map((internName, idx) => (
+                    <div key={idx} className="flex items-center space-x-2 text-[11px] font-bold text-amber-950">
+                      <div className="h-1.5 w-1.5 rounded-full bg-amber-600 shrink-0" />
+                      <span>{internName}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-1 pt-1">
+                <span className="text-[9px] font-mono font-bold text-[#8C8984] uppercase block">All Active Team Channel Members</span>
+                <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
                   {employees
-                    .filter(emp => emp.department === selectedTeam.name.replace(' Team', '').replace(' Applications', '').split(' ')[0] || (emp.department === 'AI Research' && selectedTeam.id === 'TEAM-001') || (emp.department === 'Web Development' && selectedTeam.id === 'TEAM-002') || selectedTeam.memberIds.includes(emp.id))
+                    .filter(emp => 
+                      selectedTeam.memberIds?.includes(emp.id) ||
+                      emp.id === selectedTeam.mentorId ||
+                      emp.id === selectedTeam.guideId ||
+                      selectedTeam.internIds?.includes(emp.id) ||
+                      emp.department === selectedTeam.name.replace(' Team', '').replace(' Applications', '').split(' ')[0] ||
+                      (emp.department === 'AI Research' && selectedTeam.id === 'TEAM-001') ||
+                      (emp.department === 'Web Development' && selectedTeam.id === 'TEAM-002')
+                    )
                     .map(member => (
                       <div key={member.id} className="p-2 bg-[#F9F7F4] border border-[#E5E2DE] rounded-none flex items-center justify-between text-xs">
                         <div className="flex items-center space-x-2 truncate">
@@ -317,6 +374,49 @@ export default function TeamsView() {
                   className="w-full bg-[#F9F7F4] border border-[#E5E2DE] rounded-none px-3 py-2.5 text-xs focus:outline-none focus:border-[#1A1A1A] text-[#1A1A1A] cursor-pointer"
                 >
                   {employees.map(emp => (
+                    <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-indigo-600 font-mono uppercase block">Allot Mentor</label>
+                  <select
+                    value={teamMentorId}
+                    onChange={e => setTeamMentorId(e.target.value)}
+                    className="w-full bg-[#F9F7F4] border border-indigo-200 rounded-none px-3 py-2 text-xs focus:outline-none focus:border-indigo-600 text-[#1A1A1A] cursor-pointer"
+                  >
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold text-emerald-600 font-mono uppercase block">Allot Guide</label>
+                  <select
+                    value={teamGuideId}
+                    onChange={e => setTeamGuideId(e.target.value)}
+                    className="w-full bg-[#F9F7F4] border border-emerald-200 rounded-none px-3 py-2 text-xs focus:outline-none focus:border-emerald-600 text-[#1A1A1A] cursor-pointer"
+                  >
+                    {employees.map(emp => (
+                      <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold text-amber-700 font-mono uppercase block">Add Intern to Project / Team</label>
+                <select
+                  value={teamInternId}
+                  onChange={e => setTeamInternId(e.target.value)}
+                  className="w-full bg-[#F9F7F4] border border-amber-200 rounded-none px-3 py-2 text-xs focus:outline-none focus:border-amber-600 text-[#1A1A1A] cursor-pointer"
+                >
+                  {employees.filter(emp => emp.employmentType === 'Intern' || emp.designation === 'Intern' || emp.id === 'EMP-015').map(emp => (
+                    <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
+                  ))}
+                  {employees.filter(emp => emp.employmentType !== 'Intern' && emp.id !== 'EMP-015').map(emp => (
                     <option key={emp.id} value={emp.id}>{emp.name} ({emp.designation})</option>
                   ))}
                 </select>

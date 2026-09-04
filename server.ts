@@ -22,6 +22,8 @@ import {
   deleteProjectDb,
   upsertTask,
   deleteTaskDb,
+  upsertDocument,
+  deleteDocumentDb,
   clearNotificationsForRoleDb,
   getNotificationsByRoleDb
 } from './db';
@@ -158,6 +160,25 @@ async function startServer() {
   app.delete('/api/db/tasks/:id', async (req, res) => {
     try {
       await deleteTaskDb(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Documents CRUD
+  app.post('/api/db/documents', async (req, res) => {
+    try {
+      await upsertDocument(req.body);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.delete('/api/db/documents/:id', async (req, res) => {
+    try {
+      await deleteDocumentDb(req.params.id);
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });

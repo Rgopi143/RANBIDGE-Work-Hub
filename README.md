@@ -10,23 +10,23 @@ Select any role on the **Sign In** screen from the **Select Access Role / Accoun
 
 ### Default Login Credentials
 
-| Role | Work Email / ID | Default Password | Access Level |
-| :--- | :--- | :--- | :--- |
-| **Super Admin** | `admin@ranbidge.com` | `••••••••••••` | Full Enterprise System Access |
-| **CEO** (Chief Executive Officer) | `ceo@ranbidge.com` | `••••••••••••` | Full Executive & Strategic Governance |
-| **CFO** (Chief Financial Officer) | `cfo@ranbidge.com` | `••••••••••••` | Full Financial, Payroll & Budget Control |
-| **CTO** (Chief Technology Officer) | `cto@ranbidge.com` | `••••••••••••` | Full Engineering, Architecture & AI Access |
-| **COO** (Chief Operating Officer) | `coo@ranbidge.com` | `••••••••••••` | Full Operations & Milestone Governance |
-| **CMO** (Chief Marketing Officer) | `cmo@ranbidge.com` | `••••••••••••` | Full Marketing, Media & Announcements |
-| **HR** (Human Resources Lead) | `hr@ranbidge.com` | `••••••••••••` | Full Employee, Leave & Payroll Control |
-| **Manager** | `manager@ranbidge.com` | `••••••••••••` | Departmental & Team Management |
-| **Project Manager** | `pm@ranbidge.com` | `••••••••••••` | Project Engineering & Sprint Console |
-| **Team Lead** | `teamlead@ranbidge.com` | `••••••••••••` | Sprint Tasks & Team Performance |
-| **Social Media Manager** | `smm@ranbidge.com` | `••••••••••••` | Marketing Media & Communication Vault |
-| **Guide** | `guide@ranbidge.com` | `••••••••••••` | Technical Mentorship & Guidance |
-| **Mentor** | `mentor@ranbidge.com` | `••••••••••••` | Employee & Intern Mentorship |
-| **Employee** | `employee@ranbidge.com` | `••••••••••••` | Standard Workspace & Task Console |
-| **Intern** | `intern@ranbidge.com` | `••••••••••••` | Intern Tasks & Attendance Console |
+| Employee ID | Role / Designation | Employee Name | Work Email | Password | Department | Access Level |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `EMP-001` | **Super Admin** | Rajesh Kumar | `admin@ranbidge.com` | `Admin@2026` | Executive Administration | Full Enterprise Control |
+| `EMP-002` | **CEO** | Ananya Sharma | `ceo@ranbidge.com` | `Ceo@2026` | Executive Leadership | Strategic Governance |
+| `EMP-003` | **CFO** | Vikramaditya Roy | `cfo@ranbidge.com` | `Cfo@2026` | Finance & Compliance | Financial & Payroll Control |
+| `EMP-004` | **CTO** | Siddharth Varma | `cto@ranbidge.com` | `Cto@2026` | Technology & R&D | Engineering & AI Architecture |
+| `EMP-005` | **COO** | Meera Nambiar | `coo@ranbidge.com` | `Coo@2026` | Global Operations | Operational Governance |
+| `EMP-006` | **CMO** | Karan Malhotra | `cmo@ranbidge.com` | `Cmo@2026` | Growth & Marketing | Branding & Announcements |
+| `EMP-007` | **HR** | Pooja Hegde | `hr@ranbidge.com` | `Hr@2026` | Human Resources | Employee, Leave & Payroll |
+| `EMP-008` | **Manager** | Amit Patel | `manager@ranbidge.com` | `Manager@2026` | Product Operations | Departmental Management |
+| `EMP-009` | **Project Manager** | Rohan Gupta | `pm@ranbidge.com` | `Pm@2026` | Delivery Engineering | Projects & Sprint Console |
+| `EMP-010` | **Team Lead** | Deepak Rao | `tl@ranbidge.com` | `Tl@2026` | Software Engineering | Engineering Sprints & Tasks |
+| `EMP-011` | **Social Media Manager** | Kakara Lavanya | `smm@ranbidge.com` | `Smm@2026` | Brand Marketing | Media & Communications |
+| `EMP-012` | **Guide** | Suresh Reddy | `guide@ranbidge.com` | `Guide@2026` | Customer Success | Product Guidance & Support |
+| `EMP-013` | **Mentor** | Dr. Anita Joshi | `mentor@ranbidge.com` | `Mentor@2026` | Learning & Development | Mentorship & Technical Training |
+| `EMP-014` | **Employee** | Rahul Verma | `employee@ranbidge.com` | `Emp@2026` | Software Engineering | Standard Workspace & Tasks |
+| `EMP-015` | **Intern** | Neha Kapoor | `intern@ranbidge.com` | `Intern@2026` | Software Engineering | Intern Console & Attendance |
 
 ---
 
@@ -64,7 +64,7 @@ Select any role on the **Sign In** screen from the **Select Access Role / Accoun
 | Module / Feature | Executive Suite | HR & Managers | Leads & Support | Employees & Interns |
 | :--- | :---: | :---: | :---: | :---: |
 | **Dashboard & AI Analytics** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
-| **Employee Directory** | ✅ Add/Edit/Delete | ✅ Add/Edit/Delete | 👁️ Directory View | 👁️ Directory View |
+| **Employee Directory** | ✅ Add/Edit/Delete | ✅ Add/Edit/Delete | 👁️ Directory View | 👁️ Employees (Excl. Intern) |
 | **Teams & Real-time Chat** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
 | **Projects & Sprints** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |
 | **Task Console** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ Full Access |

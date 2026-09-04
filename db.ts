@@ -147,12 +147,74 @@ export async function initializeDatabaseSchema(): Promise<void> {
       time TEXT,
       icon TEXT,
       color TEXT
+    );`,
+    `CREATE TABLE IF NOT EXISTS meta_config (
+      key TEXT PRIMARY KEY,
+      value TEXT
+    );`,
+    `CREATE TABLE IF NOT EXISTS documents (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      category TEXT,
+      path TEXT,
+      size TEXT,
+      uploader TEXT,
+      uploadedAt TEXT,
+      version TEXT,
+      allowedRoles TEXT
+    );`,
+    `CREATE TABLE IF NOT EXISTS chat_messages (
+      id TEXT PRIMARY KEY,
+      teamId TEXT NOT NULL,
+      senderId TEXT NOT NULL,
+      senderName TEXT NOT NULL,
+      senderRole TEXT NOT NULL,
+      message TEXT NOT NULL,
+      timestamp TEXT NOT NULL
     );`
   ];
 
   for (const query of createTablesQueries) {
     await db.execute(query);
   }
+
+  // Seed/Sync all 15 initial employee role accounts into Turso DB
+    const { INITIAL_EMPLOYEES, INITIAL_TASKS, INITIAL_TEAMS, INITIAL_PROJECTS, INITIAL_DOCUMENTS, INITIAL_CHAT } = await import('./src/data/mockData');
+  const countCheck = await db.execute("SELECT COUNT(*) as count FROM employees");
+  const currentCount = Number(countCheck.rows[0]?.count || 0);
+
+  if (currentCount < INITIAL_EMPLOYEES.length) {
+    console.log(`📦 Syncing missing role accounts (${currentCount}/${INITIAL_EMPLOYEES.length}) into Turso DB...`);
+    for (const emp of INITIAL_EMPLOYEES) {
+      await upsertEmployee(emp);
+    }
+  }
+
+  const seedCheck = await db.execute("SELECT * FROM meta_config WHERE key = 'initial_seeded'");
+  if (seedCheck.rows.length === 0) {
+    for (const tsk of INITIAL_TASKS) {
+      await upsertTask(tsk);
+    }
+    for (const tm of INITIAL_TEAMS) {
+      await upsertTeam(tm);
+    }
+    for (const prj of INITIAL_PROJECTS) {
+      await upsertProject(prj);
+    }
+    for (const doc of INITIAL_DOCUMENTS) {
+      await upsertDocument(doc);
+    }
+    if (INITIAL_CHAT && Array.isArray(INITIAL_CHAT)) {
+      for (const msg of INITIAL_CHAT) {
+        await upsertChatMessage(msg);
+      }
+    }
+    await db.execute({
+      sql: "INSERT OR REPLACE INTO meta_config (key, value) VALUES ('initial_seeded', 'true')",
+      args: []
+    });
+  }
+
   console.log("✅ Turso / libSQL Database schema initialized successfully.");
 }
 
@@ -169,22 +231,116 @@ export async function getAllDbData() {
   const payrollRes = await db.execute("SELECT * FROM payroll");
   const kpisRes = await db.execute("SELECT * FROM kpis");
   const announcementsRes = await db.execute("SELECT * FROM announcements");
+  const documentsRes = await db.execute("SELECT * FROM documents");
+  const chatRes = await db.execute("SELECT * FROM chat_messages");
+
+  const parsedEmployees = employeesRes.rows.map((row: any) => {
+    if (row.avatar && typeof row.avatar === 'string' && row.avatar.startsWith('{')) {
+      try {
+        return JSON.parse(row.avatar);
+      } catch (e) {}
+    }
+    return {
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      photo: row.avatar || '',
+      gender: row.gender || 'Male',
+      dob: row.dob || '1995-01-01',
+      mobile: row.mobile || '',
+      address: row.address || '',
+      department: row.department || '',
+      designation: row.designation || '',
+      skills: typeof row.skills === 'string' ? (row.skills.startsWith('[') ? JSON.parse(row.skills) : row.skills.split(',')) : (row.skills || []),
+      experience: row.experience || '1 Year',
+      joiningDate: row.joiningDate || '',
+      reportingManagerId: 'EMP-003',
+      reportingManagerName: 'Amit Patel',
+      salary: row.salary || 100000,
+      shiftTiming: row.shiftTiming || '09:30 AM - 06:30 PM',
+      employmentType: row.employmentType || 'Full-Time',
+      status: row.status || 'Active',
+      documents: typeof row.documents === 'string' ? (row.documents.startsWith('{') ? JSON.parse(row.documents) : {}) : (row.documents || {}),
+      faceIdEnrollment: row.faceIdEnrollment || undefined
+    };
+  });
+
+  const parsedTasks = tasksRes.rows.map((row: any) => {
+    if (row.comments && typeof row.comments === 'string' && row.comments.startsWith('{')) {
+      try {
+        return JSON.parse(row.comments);
+      } catch (e) {}
+    }
+    let parsedComments: any[] = [];
+    if (row.comments && typeof row.comments === 'string' && row.comments.startsWith('[')) {
+      try { parsedComments = JSON.parse(row.comments); } catch (e) {}
+    }
+    let parsedAttachments: any[] = [];
+    if (row.tags && typeof row.tags === 'string') {
+      if (row.tags.startsWith('[')) {
+        try { parsedAttachments = JSON.parse(row.tags); } catch (e) {}
+      } else {
+        parsedAttachments = row.tags.split(',').filter(Boolean);
+      }
+    }
+    return {
+      id: row.id,
+      name: row.title || row.name || 'Untitled Task',
+      description: row.description || '',
+      assignedEmployeeId: row.assignedEmployeeId || '',
+      assignedEmployeeName: row.assignedEmployeeName || '',
+      projectId: row.projectId || '',
+      projectName: row.projectName || '',
+      deadline: row.deadline || '',
+      priority: row.priority || 'Medium',
+      status: row.status || 'To Do',
+      attachments: parsedAttachments,
+      comments: parsedComments
+    };
+  });
 
   return {
-    employees: employeesRes.rows,
+    employees: parsedEmployees,
     teams: teamsRes.rows,
     projects: projectsRes.rows,
-    tasks: tasksRes.rows,
+    tasks: parsedTasks,
     attendance: attendanceRes.rows,
     leaves: leavesRes.rows,
     payroll: payrollRes.rows,
     kpis: kpisRes.rows,
     announcements: announcementsRes.rows,
+    documents: documentsRes.rows,
+    chatMessages: chatRes.rows
   };
+}
+
+export async function upsertDocument(doc: any) {
+  const db = getDbClient();
+  await db.execute({
+    sql: `INSERT OR REPLACE INTO documents (id, name, category, path, size, uploader, uploadedAt, version, allowedRoles)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      doc.id,
+      doc.name || '',
+      doc.category || 'Reports',
+      doc.path || '',
+      doc.size || '1.0 MB',
+      doc.uploader || 'System Admin',
+      doc.uploadedAt || new Date().toISOString().split('T')[0],
+      doc.version || 'v1.0',
+      typeof doc.allowedRoles === 'string' ? doc.allowedRoles : JSON.stringify(doc.allowedRoles || [])
+    ]
+  });
+}
+
+export async function deleteDocumentDb(id: string) {
+  const db = getDbClient();
+  await db.execute({ sql: `DELETE FROM documents WHERE id = ?`, args: [id] });
 }
 
 export async function upsertEmployee(emp: any) {
   const db = getDbClient();
+  const fullPayload = JSON.stringify(emp);
   await db.execute({
     sql: `INSERT OR REPLACE INTO employees (id, name, email, role, department, designation, joiningDate, status, salary, skills, avatar)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
@@ -199,7 +355,7 @@ export async function upsertEmployee(emp: any) {
       emp.status || 'Active',
       emp.salary || 0,
       typeof emp.skills === 'string' ? emp.skills : JSON.stringify(emp.skills || []),
-      emp.photo || emp.avatar || ''
+      fullPayload
     ]
   });
 }
@@ -261,12 +417,13 @@ export async function deleteProjectDb(id: string) {
 
 export async function upsertTask(task: any) {
   const db = getDbClient();
+  const fullPayload = JSON.stringify(task);
   await db.execute({
     sql: `INSERT OR REPLACE INTO tasks (id, title, description, status, priority, assignedEmployeeId, assignedEmployeeName, projectId, projectName, deadline, tags, comments)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     args: [
       task.id,
-      task.title || task.name || 'Untitled Task',
+      task.name || task.title || 'Untitled Task',
       task.description || '',
       task.status || 'To Do',
       task.priority || 'Medium',
@@ -275,8 +432,8 @@ export async function upsertTask(task: any) {
       task.projectId || '',
       task.projectName || '',
       task.deadline || '',
-      typeof task.tags === 'string' ? task.tags : (task.tags || []).join(','),
-      typeof task.comments === 'string' ? task.comments : JSON.stringify(task.comments || [])
+      typeof task.attachments === 'string' ? task.attachments : JSON.stringify(task.attachments || task.tags || []),
+      fullPayload
     ]
   });
 }
@@ -303,4 +460,26 @@ export async function getNotificationsByRoleDb(role: string) {
     args: [role]
   });
   return res.rows;
+}
+
+export async function upsertChatMessage(msg: any) {
+  const db = getDbClient();
+  await db.execute({
+    sql: `INSERT OR REPLACE INTO chat_messages (id, teamId, senderId, senderName, senderRole, message, timestamp)
+          VALUES (?, ?, ?, ?, ?, ?, ?)`,
+    args: [
+      msg.id,
+      msg.teamId || '',
+      msg.senderId || '',
+      msg.senderName || '',
+      msg.senderRole || '',
+      msg.message || '',
+      msg.timestamp || ''
+    ]
+  });
+}
+
+export async function deleteChatMessageDb(id: string) {
+  const db = getDbClient();
+  await db.execute({ sql: `DELETE FROM chat_messages WHERE id = ?`, args: [id] });
 }

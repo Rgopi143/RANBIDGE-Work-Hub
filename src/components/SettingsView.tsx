@@ -302,48 +302,52 @@ export default function SettingsView() {
   };
 
   return (
-    <div className="space-y-6 text-[#1A1A1A]">
+    <div className="space-y-6 text-[#1A1A1A] animate-fade-in-up">
 
       {/* 1. Biometric Security & Face ID Enrollment Card */}
-      <div className="bg-[#FDFCFB] border border-[#E5E2DE] p-6 space-y-4">
+      <div className="bg-[#FDFCFB] border border-[#E5E2DE] p-6 space-y-4 shadow-sm hover:shadow-md transition-shadow">
         <div className="flex items-center justify-between border-b border-[#E5E2DE] pb-2">
           <div className="flex items-center space-x-2">
-            <Camera className="h-4 w-4 text-[#1A1A1A]" />
+            <Camera className="h-4 w-4 text-[#1A1A1A] animate-pulse" />
             <h3 className="text-xs font-bold text-[#1A1A1A] font-mono uppercase tracking-wider">Face ID Biometric Desk</h3>
           </div>
-          <span className="px-2 py-0.5 border border-[#E5E2DE] bg-[#F2F0ED] text-[9px] font-mono uppercase text-[#8C8984]">
+          <span className="px-2 py-0.5 border border-amber-300/60 bg-amber-500/10 text-[9px] font-mono uppercase text-amber-800 font-semibold tracking-wider flex items-center gap-1">
+            <span className="status-dot-active scale-75" />
             Secure Profile Snapshot Vault
           </span>
          </div>
 
          {/* Status Header */}
-         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-[#F2F0ED]/30 border border-[#E5E2DE]">
-           <div className="space-y-1">
-             <span className="text-[10px] font-mono font-bold text-[#8C8984] uppercase block">Secured Profile Linked:</span>
+         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 p-4 bg-[#F2F0ED]/40 border border-[#E5E2DE] relative overflow-hidden">
+           <div className="space-y-1 z-10">
+             <span className="text-[10px] font-mono font-bold text-[#8C8984] uppercase block tracking-wider">Secured Profile Linked:</span>
              <h4 className="text-sm font-bold text-[#1A1A1A] flex items-center gap-1.5 flex-wrap">
-               <span className={`w-2 h-2 rounded-full ${currentUser?.faceIdEnrollment ? 'bg-green-500 animate-pulse' : 'bg-rose-500'}`} />
+               <span className={`w-2.5 h-2.5 rounded-full ${currentUser?.faceIdEnrollment ? 'bg-emerald-500 animate-pulse' : 'bg-rose-500'}`} />
                {currentUser?.name} <span className="text-xs font-mono font-normal text-[#8C8984]">({currentUser?.id} • {currentUser?.designation})</span>
              </h4>
-             <p className="text-[10.5px] text-[#8C8984] leading-normal uppercase font-mono mt-1">
+             <p className="text-[10.5px] text-[#8C8984] leading-normal uppercase font-mono mt-1 flex items-center gap-1">
                Enrollment Status:{' '}
                {currentUser?.faceIdEnrollment ? (
-                 <span className="text-green-850 font-bold bg-green-50 border border-green-200 px-1.5 py-0.5 ml-1">REGISTERED & ACTIVE</span>
+                 <span className="text-emerald-800 font-bold bg-emerald-50 border border-emerald-300 px-2 py-0.5 ml-1 flex items-center gap-1 shadow-xs">
+                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+                   REGISTERED & ACTIVE
+                 </span>
                ) : (
-                 <span className="text-rose-600 font-bold bg-rose-50 border border-rose-150 px-1.5 py-0.5 ml-1">NOT ENROLLED</span>
+                 <span className="text-rose-600 font-bold bg-rose-50 border border-rose-200 px-2 py-0.5 ml-1 animate-pulse">NOT ENROLLED</span>
                )}
              </p>
            </div>
 
            {currentUser?.faceIdEnrollment && (
-             <div className="flex items-center gap-3">
-               <div className="relative w-12 h-12 border border-[#E5E2DE] rounded-none overflow-hidden bg-white shrink-0">
-                 <img src={currentUser.faceIdEnrollment} alt="Face Registration" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                 <div className="absolute inset-0 bg-green-500/10 ring-1 ring-inset ring-green-500/30" />
+             <div className="flex items-center gap-3 z-10">
+               <div className="relative w-12 h-12 border-2 border-emerald-500/50 rounded-none overflow-hidden bg-white shrink-0 shadow-sm group">
+                 <img src={currentUser.faceIdEnrollment} alt="Face Registration" className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" referrerPolicy="no-referrer" />
+                 <div className="absolute inset-0 bg-emerald-500/10 ring-1 ring-inset ring-emerald-500/40" />
                </div>
                <button
                  type="button"
                  onClick={clearEnrollment}
-                 className="px-2.5 py-1.5 border border-red-200 bg-red-50 hover:bg-red-500 hover:text-white text-red-600 font-mono text-[10px] uppercase font-bold cursor-pointer transition-all flex items-center gap-1"
+                 className="px-2.5 py-1.5 border border-rose-300 bg-rose-50 hover:bg-rose-600 hover:text-white text-rose-600 font-mono text-[10px] uppercase font-bold cursor-pointer transition-all flex items-center gap-1 shadow-xs active:scale-95"
                >
                  <Trash2 className="h-3 w-3" />
                  Clear Register
@@ -355,11 +359,18 @@ export default function SettingsView() {
          {/* Live Enrollment Interface */}
          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-2">
            
-           {/* Camera/Canvas Visual Area */}
-           <div className="lg:col-span-4 flex flex-col items-center justify-center p-4 bg-[#F9F7F4] border border-[#E5E2DE] text-center min-h-[260px] relative">
+           {/* Camera/Canvas Visual Area with Futuristic Laser HUD */}
+           <div className="lg:col-span-4 flex flex-col items-center justify-center p-4 bg-[#F9F7F4] border border-[#E5E2DE] text-center min-h-[270px] relative overflow-hidden rounded-none group hover:border-amber-400/80 transition-colors">
              
+             {/* HUD Corner Bracket Accents */}
+             <div className="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-amber-600/80 z-20 pointer-events-none" />
+             <div className="absolute top-2 right-2 w-3 h-3 border-t-2 border-r-2 border-amber-600/80 z-20 pointer-events-none" />
+             <div className="absolute bottom-2 left-2 w-3 h-3 border-b-2 border-l-2 border-amber-600/80 z-20 pointer-events-none" />
+             <div className="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-amber-600/80 z-20 pointer-events-none" />
+
              {cameraActive ? (
-               <div className="relative w-full aspect-square max-w-[200px] border border-[#1A1A1A] bg-black overflow-hidden select-none">
+               <div className="relative w-full aspect-square max-w-[210px] border-2 border-amber-500 bg-black overflow-hidden select-none shadow-md">
+                 <div className="animate-laser-scan" />
                  <video
                    ref={videoRef}
                    autoPlay
@@ -367,51 +378,55 @@ export default function SettingsView() {
                    muted
                    className="w-full h-full object-cover scale-x-[-1]"
                  />
-                 <div className="absolute inset-0 border border-dashed border-white/40 pointer-events-none flex items-center justify-center">
-                   <div className="w-28 h-28 border border-dashed border-green-400 rounded-full animate-pulse flex items-center justify-center">
-                     <span className="text-[7.5px] font-mono text-green-400 bg-black/50 px-1.5 uppercase font-bold tracking-wider">Align Head</span>
+                 <div className="absolute inset-0 border border-dashed border-amber-400/50 pointer-events-none flex items-center justify-center">
+                   <div className="w-32 h-32 border-2 border-dashed border-emerald-400 rounded-full animate-pulse flex items-center justify-center bg-emerald-500/5">
+                     <span className="text-[7.5px] font-mono text-emerald-400 bg-black/70 px-2 py-0.5 uppercase font-bold tracking-wider rounded-none">Align Head</span>
                    </div>
                  </div>
-                 <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                 <div className="absolute bottom-2 left-0 right-0 flex justify-center z-30">
                     <button
                       type="button"
                       onClick={captureFrame}
-                      className="px-2.5 py-1 bg-[#1A1A1A] text-white text-[9px] font-mono uppercase font-bold hover:bg-[#F2F0ED] hover:text-[#1A1A1A] transition-all flex items-center gap-1 ring-1 ring-white/15 cursor-pointer"
+                      className="px-3 py-1.5 bg-amber-600 text-white text-[9px] font-mono uppercase font-bold hover:bg-amber-500 transition-all flex items-center gap-1.5 shadow-md cursor-pointer active:scale-95"
                     >
-                      <Camera className="h-3 w-3" />
+                      <Camera className="h-3.5 w-3.5" />
                       Take Snapshot
                     </button>
                  </div>
                </div>
              ) : provisionalFace ? (
-               <div className="relative w-full aspect-square max-w-[200px] border border-amber-400 bg-[#F2F0ED] overflow-hidden">
+               <div className="relative w-full aspect-square max-w-[210px] border-2 border-amber-500 bg-[#F2F0ED] overflow-hidden shadow-md group/snap">
+                 <div className="animate-laser-scan" />
                  <img src={provisionalFace} alt="Provisional Face Capture" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                 <div className="absolute top-2 right-2 bg-amber-500 text-white text-[8px] font-mono px-1.5 py-0.5 font-bold uppercase">
+                 <div className="absolute top-2 right-2 bg-amber-600 text-white text-[8px] font-mono px-2 py-0.5 font-bold uppercase tracking-wider shadow-xs">
                    PENDING REGISTRATION
                  </div>
                  <button
                    type="button"
                    onClick={() => setProvisionalFace('')}
-                   className="absolute bottom-2 right-2 p-1 bg-black/60 hover:bg-black text-white rounded-none cursor-pointer"
+                   className="absolute bottom-2 right-2 p-1.5 bg-black/80 hover:bg-rose-600 text-white rounded-none cursor-pointer transition-colors"
                    title="Clear provisional snap"
                  >
-                   <X className="h-3 w-3" />
+                   <X className="h-3.5 w-3.5" />
                  </button>
                </div>
              ) : (
-               <div className="flex flex-col items-center justify-center space-y-3 p-4 text-[#8C8984]">
-                 <div className="w-16 h-16 border border-dashed border-[#E5E2DE] rounded-full flex items-center justify-center bg-white">
-                   <Camera className="h-6 w-6 text-[#8C8984]" />
+               <div className="flex flex-col items-center justify-center space-y-3 p-4 text-[#8C8984] relative">
+                 <div className="relative">
+                   <div className="absolute -inset-3 rounded-full border border-amber-400/30 animate-sonar-ping pointer-events-none" />
+                   <div className="w-16 h-16 border border-amber-300/80 rounded-full flex items-center justify-center bg-white shadow-xs group-hover:scale-105 transition-transform">
+                     <Camera className="h-7 w-7 text-amber-700" />
+                   </div>
                  </div>
-                 <p className="text-[10px] font-mono uppercase tracking-wide leading-relaxed block text-center max-w-[150px]">
+                 <p className="text-[10px] font-mono uppercase tracking-wide leading-relaxed block text-center max-w-[150px] text-[#555]">
                    Live webcam scanner offline
                  </p>
                  <button
                    type="button"
                    onClick={startCamera}
-                   className="px-2.5 py-1.5 bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 text-white font-mono text-[9px] uppercase font-bold transition-all flex items-center gap-1 cursor-pointer"
+                   className="px-3 py-1.5 bg-[#1A1A1A] hover:bg-amber-700 text-white font-mono text-[9.5px] uppercase font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs active:scale-95"
                  >
-                   <Camera className="h-3 w-3" />
+                   <Camera className="h-3.5 w-3.5" />
                    Start Webcam
                  </button>
                </div>
@@ -424,24 +439,27 @@ export default function SettingsView() {
            <div className="lg:col-span-8 space-y-4 flex flex-col justify-between">
              <div className="space-y-3">
                <div className="space-y-1">
-                 <h4 className="text-[10.5px] font-mono font-bold text-[#1A1A1A] uppercase">Registration Walkthrough</h4>
+                 <h4 className="text-[10.5px] font-mono font-bold text-[#1A1A1A] uppercase tracking-wider flex items-center gap-1.5">
+                   <Sparkles className="h-3.5 w-3.5 text-amber-600" />
+                   Registration Walkthrough
+                 </h4>
                  <p className="text-xs text-[#8C8984] leading-relaxed">
-                   Integrate high-accuracy biometric validation references into your profile. To avoid check-in rejections, verify even lightning, look straight into the camera, and remove objects compromising facial contours.
+                   Integrate high-accuracy biometric validation references into your profile. To avoid check-in rejections, verify even lighting, look straight into the camera, and remove objects compromising facial contours.
                  </p>
                </div>
 
                {/* Alternative: Image Upload button & Presets */}
-               <div className="p-3 bg-[#F2F0ED]/20 border border-[#E5E2DE] space-y-3 font-mono">
-                 <span className="text-[8.5px] font-bold text-[#8C8984] uppercase block">Portrait upload alternative:</span>
+               <div className="p-3.5 bg-[#F2F0ED]/30 border border-[#E5E2DE] space-y-3 font-mono">
+                 <span className="text-[8.5px] font-bold text-[#8C8984] uppercase block tracking-wider">Portrait upload alternative:</span>
                  
                  <div className="flex flex-col sm:flex-row gap-2">
                    {/* Manual Upload */}
                    <button
                      type="button"
                      onClick={() => fileInputRef.current?.click()}
-                     className="px-2.5 py-1.5 border border-[#E5E2DE] bg-white hover:bg-[#F2F0ED] text-[#1A1A1A] text-[9.5px] uppercase font-bold transition-all flex items-center justify-center gap-1 cursor-pointer"
+                     className="px-3 py-1.5 border border-[#E5E2DE] bg-white hover:bg-amber-500/10 hover:border-amber-400 text-[#1A1A1A] text-[9.5px] uppercase font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs hover:-translate-y-0.5"
                    >
-                     <Upload className="h-3.5 w-3.5" />
+                     <Upload className="h-3.5 w-3.5 text-amber-700" />
                      Upload Reference Photo
                    </button>
                    <input
@@ -454,9 +472,9 @@ export default function SettingsView() {
                  </div>
 
                  {/* Presets */}
-                 <div className="space-y-1.5 pt-1.5 border-t border-[#E5E2DE]/50">
-                   <span className="text-[8px] font-medium text-[#8C8984] uppercase block">Webcam Emulator Presets (Quick Tests):</span>
-                   <div className="flex flex-wrap gap-1.5">
+                 <div className="space-y-1.5 pt-2 border-t border-[#E5E2DE]/70">
+                   <span className="text-[8px] font-medium text-[#8C8984] uppercase block tracking-wider">Webcam Emulator Presets (Quick Tests):</span>
+                   <div className="flex flex-wrap gap-2">
                      {FACE_PRESETS.map((preset, idx) => (
                        <button
                          key={idx}
@@ -466,9 +484,9 @@ export default function SettingsView() {
                            setEnrollError(null);
                            if (cameraActive) stopCamera();
                          }}
-                         className="px-2 py-1 text-[8px] border border-[#E5E2DE] bg-white hover:bg-[#F2F0ED] text-[#1A1A1A] transition-all flex items-center gap-1 cursor-pointer"
+                         className="px-2.5 py-1 text-[8.5px] border border-[#E5E2DE] bg-white hover:bg-amber-50 hover:border-amber-400 text-[#1A1A1A] transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs hover:-translate-y-0.5 active:scale-95"
                        >
-                         <Sparkles className="h-2.5 w-2.5 text-amber-500" />
+                         <Sparkles className="h-3 w-3 text-amber-600" />
                          <span>{preset.name}</span>
                        </button>
                      ))}
@@ -478,15 +496,15 @@ export default function SettingsView() {
 
                {/* Notifications */}
                {enrollError && (
-                 <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-mono leading-relaxed uppercase flex items-center gap-2">
+                 <div className="p-3 bg-rose-50 border border-rose-200 text-rose-800 text-[10px] font-mono leading-relaxed uppercase flex items-center gap-2 animate-fade-in-up">
                    <AlertCircle className="h-4 w-4 text-rose-600 shrink-0" />
                    <span>{enrollError}</span>
                  </div>
                )}
 
                {enrollSuccess && (
-                 <div className="p-3 bg-green-55/35 border border-green-200 text-green-800 text-[10px] font-mono leading-relaxed uppercase flex items-center gap-2 animate-fade-in">
-                   <CheckCircle className="h-4 w-4 text-green-700 shrink-0" />
+                 <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-900 text-[10px] font-mono leading-relaxed uppercase flex items-center gap-2 animate-fade-in-up shadow-xs">
+                   <CheckCircle className="h-4 w-4 text-emerald-600 shrink-0" />
                    <div>
                      <span className="font-bold">REGISTERED:</span> Face signature updated successfully. Try checking in on the Attendance tab!
                    </div>
@@ -500,7 +518,7 @@ export default function SettingsView() {
                  type="button"
                  onClick={saveEnrollment}
                  disabled={!provisionalFace}
-                 className="px-4 py-2 bg-[#1A1A1A] hover:bg-[#1A1A1A]/90 disabled:bg-[#F2F0ED] disabled:text-[#8C8984] text-[10.5px] font-bold font-mono tracking-wider text-white uppercase transition-all flex items-center gap-1.5 cursor-pointer rounded-none"
+                 className="px-5 py-2.5 bg-[#1A1A1A] hover:bg-amber-700 disabled:bg-[#F2F0ED] disabled:text-[#8C8984] text-[10.5px] font-bold font-mono tracking-widest text-white uppercase transition-all flex items-center gap-2 cursor-pointer rounded-none shadow-sm active:scale-95 disabled:active:scale-100"
                >
                  <ShieldCheck className="h-4 w-4" />
                  Save Secure Face Signature
@@ -512,7 +530,7 @@ export default function SettingsView() {
       </div>
 
       {/* Main Settings Panel */}
-      <div className="bg-[#FDFCFB] border border-[#E5E2DE] rounded-none p-5 space-y-4">
+      <div className="bg-[#FDFCFB] border border-[#E5E2DE] rounded-none p-5 space-y-4 shadow-sm">
         <div className="flex items-center space-x-2 border-b border-[#E5E2DE] pb-2">
           <Settings className="h-4 w-4 text-[#1A1A1A]" />
           <h3 className="text-xs font-bold text-[#1A1A1A] font-mono uppercase tracking-wider">Enterprise OS Configurations</h3>

@@ -22,7 +22,9 @@ import {
   X,
   FileBadge,
   Upload,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Eye,
+  Download
 } from 'lucide-react';
 
 export default function EmployeesView() {
@@ -41,6 +43,7 @@ export default function EmployeesView() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
   const [viewingProfile, setViewingProfile] = useState<Employee | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<{ key: string; name: string } | null>(null);
 
   // Form states
   const [formName, setFormName] = useState('');
@@ -116,6 +119,17 @@ export default function EmployeesView() {
   const canManageAll = ['Super Admin', 'HR', 'Manager'].includes(currentRole);
 
   const filteredEmployees = employees.filter(emp => {
+    // Exclude Super Admin role (EMP-001 / Super Admin designation)
+    const isSuperAdmin = emp.designation === 'Super Admin' || emp.id === 'EMP-001' || (emp as any).role === 'Super Admin';
+
+    // Exclude the currently logged-in user (e.g., HR when HR is logged in, CEO when CEO is logged in)
+    const isCurrentUser = (currentUser && (currentUser.id === emp.id || (currentUser.email && emp.email && currentUser.email.toLowerCase() === emp.email.toLowerCase()))) ||
+                          (currentRole && emp.designation && emp.designation.toLowerCase() === currentRole.toLowerCase());
+
+    if (isSuperAdmin || isCurrentUser) {
+      return false;
+    }
+
     // Search query matches
     const matchesSearch = emp.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           emp.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -124,11 +138,6 @@ export default function EmployeesView() {
     // Dept filter matches
     const matchesDept = selectedDept === 'All' || emp.department === selectedDept;
 
-    // Role specific lock: If standard Employee view, they can see everyone listed, but we highlight if restricted
-    if (!canManageAll) {
-      // In a regular business card directory, seeing list is fine, editing is locked.
-      return matchesSearch && matchesDept;
-    }
     return matchesSearch && matchesDept;
   });
 
@@ -275,7 +284,7 @@ export default function EmployeesView() {
             <div
               id={`emp-card-${emp.id}`}
               key={emp.id}
-              className={`bg-[#FDFCFB] border p-5 space-y-4 hover:border-[#1A1A1A] transition-all relative overflow-hidden rounded-none ${
+              className={`bg-[#FDFCFB] border p-5 space-y-4 hover:border-[#1A1A1A] transition-all relative overflow-hidden rounded-none interactive-card animate-fade-in-up ${
                 isOwnProfile ? 'border-l-4 border-l-[#1A1A1A] border-[#E5E2DE]' : 'border-[#E5E2DE]'
               }`}
             >
@@ -341,7 +350,7 @@ export default function EmployeesView() {
                   className="px-3 py-1.5 rounded-none bg-[#F9F7F4] hover:bg-[#E5E2DE] border border-[#E5E2DE] text-[10px] font-bold font-mono text-[#1A1A1A] uppercase tracking-wider cursor-pointer transition-all flex items-center space-x-1"
                 >
                   <FileText className="h-3.5 w-3.5 shrink-0 text-[#1A1A1A]" />
-                  <span>View Credentials</span>
+                  <span>View Details</span>
                 </button>
                 <div className="flex items-center space-x-2">
                   {canEditThis && (
@@ -370,29 +379,41 @@ export default function EmployeesView() {
       {/* Profiles Credential Drawer */}
       {viewingProfile && (
         <div className="fixed inset-0 bg-[#1A1A1A]/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-          <div className="bg-[#FDFCFB] rounded-none w-full max-w-2xl border border-[#E5E2DE] overflow-hidden shadow-2xl flex flex-col md:flex-row">
+          <div className="bg-[#FDFCFB] rounded-none w-full max-w-2xl border border-[#E5E2DE] overflow-hidden shadow-2xl flex flex-col md:flex-row max-h-[90vh] animate-scale-in">
             {/* Left Photo & Role */}
-            <div className="md:w-1/3 bg-[#F2F0ED] p-6 border-r border-[#E5E2DE] flex flex-col items-center justify-center text-center text-[#1A1A1A] relative">
+            <div className="md:w-1/3 bg-[#F2F0ED] p-6 border-b md:border-b-0 md:border-r border-[#E5E2DE] flex flex-col items-center justify-center text-center text-[#1A1A1A] relative shrink-0">
               <div className="absolute top-4 right-4 md:hidden">
                 <button onClick={() => setViewingProfile(null)} className="p-1.5 bg-[#FDFCFB] border border-[#E5E2DE] hover:bg-[#1A1A1A] hover:text-white transition-all text-[#1A1A1A]">
                   <X className="h-4 w-4" />
                 </button>
               </div>
-              <img
-                src={viewingProfile.photo}
-                referrerPolicy="no-referrer"
-                className="h-24 w-24 rounded-none object-cover border-2 border-[#1A1A1A] referer-policy animate-fade-in"
-                alt={viewingProfile.name}
-              />
-              <div className="mt-4 space-y-1">
-                <h3 className="text-sm font-bold tracking-tight text-[#1A1A1A]">{viewingProfile.name}</h3>
-                <p className="text-[10px] font-mono text-[#8C8984]">{viewingProfile.id}</p>
-                <p className="text-[10px] text-[#1A1A1A] font-semibold uppercase tracking-wider">{viewingProfile.designation}</p>
+              <div className="relative">
+                <img
+                  src={viewingProfile.photo}
+                  referrerPolicy="no-referrer"
+                  className="h-28 w-28 rounded-none object-cover border-2 border-[#1A1A1A] referer-policy shadow-md"
+                  alt={viewingProfile.name}
+                />
+                {currentUser?.id === viewingProfile.id && (
+                  <span className="absolute -top-2 -right-2 bg-[#1A1A1A] text-white text-[9px] font-mono px-1.5 py-0.5 font-bold tracking-wider">
+                    YOU
+                  </span>
+                )}
+              </div>
+              <div className="mt-4 space-y-1.5 w-full">
+                <h3 className="text-base font-bold tracking-tight text-[#1A1A1A] font-sans">{viewingProfile.name}</h3>
+                <p className="text-[11px] font-mono text-[#8C8984] bg-[#E5E2DE]/50 px-2 py-0.5 inline-block">{viewingProfile.id}</p>
+                <p className="text-[11px] text-[#1A1A1A] font-semibold uppercase tracking-wider">{viewingProfile.designation}</p>
+                <div className="pt-2">
+                  <span className="inline-block px-2.5 py-1 text-[9px] font-bold font-mono bg-[#E5E2DE] text-[#1A1A1A] border border-[#CCCCCC] uppercase tracking-wider">
+                    {viewingProfile.department}
+                  </span>
+                </div>
               </div>
             </div>
  
             {/* Right Detailed stats & Doc attachments */}
-            <div className="flex-1 p-6 space-y-4">
+            <div className="flex-1 p-6 space-y-4 overflow-y-auto">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-[10px] font-bold text-[#8C8984] uppercase tracking-wider font-mono">Professional Dossier</span>
                 <button onClick={() => setViewingProfile(null)} className="hidden md:block p-1 bg-[#F9F7F4] border border-[#E5E2DE] hover:bg-[#1A1A1A] hover:text-white text-[#1A1A1A] cursor-pointer transition-all">
@@ -411,29 +432,204 @@ export default function EmployeesView() {
                 </div>
                 <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5">
                   <span className="text-[#8C8984] font-mono block text-[9px]">EMAIL ID</span>
-                  <span className="font-bold text-[#1A1A1A] truncate block">{viewingProfile.email}</span>
+                  <span className="font-bold text-[#1A1A1A] truncate block" title={viewingProfile.email}>{viewingProfile.email}</span>
                 </div>
+                {canManageAll && (viewingProfile as any).password && (
+                  <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5">
+                    <span className="text-[#8C8984] font-mono block text-[9px]">TEMP PASSWORD</span>
+                    <span className="font-bold font-mono text-indigo-700">{(viewingProfile as any).password}</span>
+                  </div>
+                )}
                 <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5">
                   <span className="text-[#8C8984] font-mono block text-[9px]">JOINING DATE</span>
                   <span className="font-bold text-[#1A1A1A]">{viewingProfile.joiningDate}</span>
                 </div>
+                {viewingProfile.mobile && (
+                  <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5">
+                    <span className="text-[#8C8984] font-mono block text-[9px]">MOBILE / CONTACT</span>
+                    <span className="font-bold text-[#1A1A1A]">{viewingProfile.mobile}</span>
+                  </div>
+                )}
+                {viewingProfile.shiftTiming && (
+                  <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5">
+                    <span className="text-[#8C8984] font-mono block text-[9px]">SHIFT & TYPE</span>
+                    <span className="font-bold text-[#1A1A1A]">{viewingProfile.shiftTiming} ({viewingProfile.employmentType})</span>
+                  </div>
+                )}
+                {viewingProfile.salary && (
+                  <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5">
+                    <span className="text-[#8C8984] font-mono block text-[9px]">MONTHLY SALARY</span>
+                    <span className="font-bold text-emerald-700 font-mono">₹{Number(viewingProfile.salary).toLocaleString('en-IN')} / mo</span>
+                  </div>
+                )}
+                {viewingProfile.reportingManagerName && (
+                  <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5 col-span-2">
+                    <span className="text-[#8C8984] font-mono block text-[9px]">REPORTING MANAGER</span>
+                    <span className="font-bold text-[#1A1A1A]">{viewingProfile.reportingManagerName} ({viewingProfile.reportingManagerId})</span>
+                  </div>
+                )}
+                {viewingProfile.address && (
+                  <div className="p-2.5 bg-[#F9F7F4] border border-[#E5E2DE] space-y-0.5 col-span-2">
+                    <span className="text-[#8C8984] font-mono block text-[9px]">OFFICIAL ADDRESS</span>
+                    <span className="font-semibold text-[#1A1A1A]">{viewingProfile.address}</span>
+                  </div>
+                )}
               </div>
  
               {/* File proofs checklist */}
-              <div className="space-y-2">
-                <span className="text-[10px] font-mono font-bold text-[#8C8984] tracking-wider block">ID Proofs & Legal Archives</span>
+              <div className="space-y-2 pt-2 border-t border-[#E5E2DE]">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-mono font-bold text-[#8C8984] tracking-wider block">ID Proofs & Legal Archives</span>
+                  <span className="text-[9px] font-mono text-[#8C8984]">Click row to view / Upload to replace</span>
+                </div>
                 <div className="space-y-1.5">
                   {Object.entries(viewingProfile.documents).map(([key, name]) => (
-                    <div key={key} className="p-2 bg-[#F9F7F4] border border-[#E5E2DE] flex items-center justify-between text-[11px] font-medium text-[#1A1A1A]">
-                      <div className="flex items-center space-x-2">
-                        <FileBadge className="h-4 w-4 text-[#1A1A1A] shrink-0" />
-                        <span className="font-mono text-[#1A1A1A] uppercase tracking-wide">{key}:</span>
-                        <span className="text-[#8C8984] font-bold truncate max-w-xs">{name}</span>
+                    <div 
+                      key={key} 
+                      className="p-2 bg-[#F9F7F4] hover:bg-[#E5E2DE]/50 border border-[#E5E2DE] flex items-center justify-between text-[11px] font-medium text-[#1A1A1A] transition-all group"
+                    >
+                      <div 
+                        onClick={() => setPreviewDoc({ key, name })}
+                        className="flex items-center space-x-2 truncate min-w-0 pr-2 cursor-pointer flex-1"
+                      >
+                        <FileBadge className="h-4 w-4 text-[#1A1A1A] shrink-0 group-hover:scale-110 transition-transform" />
+                        <span className="font-mono text-[#1A1A1A] uppercase tracking-wide shrink-0">{key}:</span>
+                        <span className="text-[#8C8984] group-hover:text-[#1A1A1A] font-bold truncate">{name}</span>
                       </div>
-                      <span className="px-1.5 py-0.5 bg-[#F2F0ED] text-[#1A1A1A] text-[9px] font-bold font-mono border border-[#E5E2DE] uppercase">APPROVED</span>
+                      
+                      <div className="flex items-center space-x-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewDoc({ key, name })}
+                          className="px-2 py-0.5 bg-[#F9F7F4] hover:bg-[#1A1A1A] hover:text-white border border-[#E5E2DE] text-[#1A1A1A] text-[9px] font-bold font-mono cursor-pointer transition-all uppercase flex items-center space-x-1"
+                        >
+                          <Eye className="h-3 w-3 shrink-0" />
+                          <span>Preview</span>
+                        </button>
+                        <label 
+                          onClick={(e) => e.stopPropagation()}
+                          className="px-2 py-0.5 bg-white border border-[#E5E2DE] hover:bg-[#1A1A1A] hover:text-white text-[#1A1A1A] text-[9px] font-bold font-mono cursor-pointer transition-all uppercase flex items-center space-x-1"
+                        >
+                          <Upload className="h-3 w-3 shrink-0" />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept=".pdf,.png,.jpg,.doc,.docx"
+                            onChange={(e) => {
+                              if (e.target.files?.[0] && viewingProfile) {
+                                const newFileName = e.target.files[0].name;
+                                const updatedDocs = {
+                                  ...viewingProfile.documents,
+                                  [key]: newFileName
+                                };
+                                updateEmployee(viewingProfile.id, { documents: updatedDocs });
+                                setViewingProfile({
+                                  ...viewingProfile,
+                                  documents: updatedDocs
+                                });
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                        <span 
+                          onClick={() => setPreviewDoc({ key, name })}
+                          className="px-1.5 py-0.5 bg-[#F2F0ED] text-[#1A1A1A] text-[9px] font-bold font-mono border border-[#E5E2DE] uppercase cursor-pointer"
+                        >
+                          APPROVED
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Document Preview Sub-Modal */}
+      {previewDoc && (
+        <div className="fixed inset-0 bg-[#1A1A1A]/70 backdrop-blur-md flex items-center justify-center p-4 z-[60] animate-fade-in">
+          <div className="bg-[#FDFCFB] rounded-none w-full max-w-lg border border-[#E5E2DE] overflow-hidden shadow-2xl space-y-0">
+            <div className="bg-[#F2F0ED] px-4 py-3 border-b border-[#E5E2DE] flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <FileBadge className="h-4 w-4 text-[#1A1A1A]" />
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-[#1A1A1A]">
+                  DOCUMENT ARCHIVE PREVIEW :: {previewDoc.key}
+                </span>
+              </div>
+              <button 
+                onClick={() => setPreviewDoc(null)}
+                className="p-1 bg-[#FDFCFB] hover:bg-[#1A1A1A] hover:text-white border border-[#E5E2DE] cursor-pointer transition-all text-[#1A1A1A]"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4 text-center">
+              <div className="p-6 bg-[#F9F7F4] border border-[#E5E2DE] space-y-3 font-mono text-left">
+                <div className="w-12 h-12 bg-[#E5E2DE] mx-auto flex items-center justify-center border border-[#CCCCCC]">
+                  <FileBadge className="h-6 w-6 text-[#1A1A1A]" />
+                </div>
+                <div className="text-center">
+                  <p className="text-xs font-bold text-[#1A1A1A] break-all">{previewDoc.name}</p>
+                  <p className="text-[10px] text-emerald-700 font-bold mt-1">Status: VERIFIED & APPROVED</p>
+                </div>
+                <div className="pt-3 border-t border-[#E5E2DE] text-[9.5px] text-[#1A1A1A] space-y-1 bg-white p-3 border">
+                  <p className="font-bold text-[#8C8984] uppercase font-mono">DOCUMENT PREVIEW SUMMARY:</p>
+                  <p>• Document Category: <span className="font-bold font-mono">{previewDoc.key.toUpperCase()}</span></p>
+                  <p>• Employee Holder: <span className="font-bold">{viewingProfile?.name} ({viewingProfile?.id})</span></p>
+                  <p>• Security Token: <span className="font-mono text-indigo-700">AES256-VAULT-#{Math.floor(100000 + Math.random() * 900000)}</span></p>
+                  <p>• Verified Clearance: <span className="text-emerald-700 font-bold">Passed Legal Inspection</span></p>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-end space-x-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    try {
+                      const docName = previewDoc.name;
+                      const docKey = previewDoc.key;
+                      const headerText = `==================================================
+RANBIDGE SOLUTIONS PRIVATE LIMITED - ENTERPRISE VAULT
+==================================================
+DOCUMENT TYPE : ${docKey.toUpperCase()}
+DOCUMENT FILE : ${docName}
+EMPLOYEE NAME : ${viewingProfile?.name || 'Employee'}
+EMPLOYEE ID   : ${viewingProfile?.id || 'EMP-001'}
+DEPARTMENT    : ${viewingProfile?.department || 'Operations'}
+STATUS        : VERIFIED & APPROVED (AES-256 ENCRYPTED)
+TIMESTAMP     : ${new Date().toISOString()}
+==================================================
+This is an authentic verified electronic document archived in the RANBIDGE Enterprise Workspace Database.
+`;
+                      const blob = new Blob([headerText], { type: 'text/plain;charset=utf-8' });
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.setAttribute('download', docName.includes('.') ? docName : `${docName}.pdf`);
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      setTimeout(() => URL.revokeObjectURL(url), 200);
+                    } catch (err) {
+                      console.error('File download error:', err);
+                    }
+                  }}
+                  className="px-3 py-2 bg-[#1A1A1A] text-white text-[10px] font-mono font-bold hover:bg-[#333333] transition-all cursor-pointer flex items-center space-x-1.5"
+                >
+                  <Download className="h-3.5 w-3.5 shrink-0" />
+                  <span>DOWNLOAD FILE</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewDoc(null)}
+                  className="px-3 py-2 bg-[#F9F7F4] border border-[#E5E2DE] text-[#1A1A1A] text-[10px] font-mono font-bold hover:bg-[#E5E2DE] transition-all cursor-pointer"
+                >
+                  CLOSE
+                </button>
               </div>
             </div>
           </div>
