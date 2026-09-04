@@ -193,47 +193,47 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   }, [currentTheme]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'employees', JSON.stringify(employees));
+    if (employees.length > 0) localStorage.setItem(STORAGE_PREFIX + 'employees', JSON.stringify(employees));
   }, [employees]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'teams', JSON.stringify(teams));
+    if (teams.length > 0) localStorage.setItem(STORAGE_PREFIX + 'teams', JSON.stringify(teams));
   }, [teams]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'projects', JSON.stringify(projects));
+    if (projects.length > 0) localStorage.setItem(STORAGE_PREFIX + 'projects', JSON.stringify(projects));
   }, [projects]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'tasks', JSON.stringify(tasks));
+    if (tasks.length > 0) localStorage.setItem(STORAGE_PREFIX + 'tasks', JSON.stringify(tasks));
   }, [tasks]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'attendance', JSON.stringify(attendance));
+    if (attendance.length > 0) localStorage.setItem(STORAGE_PREFIX + 'attendance', JSON.stringify(attendance));
   }, [attendance]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'leaves', JSON.stringify(leaves));
+    if (leaves.length > 0) localStorage.setItem(STORAGE_PREFIX + 'leaves', JSON.stringify(leaves));
   }, [leaves]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'payroll', JSON.stringify(payroll));
+    if (payroll.length > 0) localStorage.setItem(STORAGE_PREFIX + 'payroll', JSON.stringify(payroll));
   }, [payroll]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'kpis', JSON.stringify(kpis));
+    if (kpis.length > 0) localStorage.setItem(STORAGE_PREFIX + 'kpis', JSON.stringify(kpis));
   }, [kpis]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'documents', JSON.stringify(documents));
+    if (documents.length > 0) localStorage.setItem(STORAGE_PREFIX + 'documents', JSON.stringify(documents));
   }, [documents]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'announcements', JSON.stringify(announcements));
+    if (announcements.length > 0) localStorage.setItem(STORAGE_PREFIX + 'announcements', JSON.stringify(announcements));
   }, [announcements]);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_PREFIX + 'chatMessages', JSON.stringify(chatMessages));
+    if (chatMessages.length > 0) localStorage.setItem(STORAGE_PREFIX + 'chatMessages', JSON.stringify(chatMessages));
   }, [chatMessages]);
 
   // Determine active profile based on simulated Role

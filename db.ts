@@ -179,7 +179,7 @@ export async function initializeDatabaseSchema(): Promise<void> {
   }
 
   // Seed/Sync all 15 initial employee role accounts into Turso DB
-    const { INITIAL_EMPLOYEES, INITIAL_TASKS, INITIAL_TEAMS, INITIAL_PROJECTS, INITIAL_DOCUMENTS, INITIAL_CHAT } = await import('./src/data/mockData');
+  const { INITIAL_EMPLOYEES, INITIAL_TASKS, INITIAL_TEAMS, INITIAL_PROJECTS, INITIAL_DOCUMENTS, INITIAL_CHAT } = await import('./src/data/mockData');
   const countCheck = await db.execute("SELECT COUNT(*) as count FROM employees");
   const currentCount = Number(countCheck.rows[0]?.count || 0);
 
@@ -190,32 +190,37 @@ export async function initializeDatabaseSchema(): Promise<void> {
     }
   }
 
-  const seedCheck = await db.execute("SELECT * FROM meta_config WHERE key = 'initial_seeded'");
-  if (seedCheck.rows.length === 0) {
-    for (const tsk of INITIAL_TASKS) {
-      await upsertTask(tsk);
-    }
-    for (const tm of INITIAL_TEAMS) {
-      await upsertTeam(tm);
-    }
-    for (const prj of INITIAL_PROJECTS) {
-      await upsertProject(prj);
-    }
-    for (const doc of INITIAL_DOCUMENTS) {
-      await upsertDocument(doc);
-    }
-    if (INITIAL_CHAT && Array.isArray(INITIAL_CHAT)) {
-      for (const msg of INITIAL_CHAT) {
-        await upsertChatMessage(msg);
-      }
-    }
-    await db.execute({
-      sql: "INSERT OR REPLACE INTO meta_config (key, value) VALUES ('initial_seeded', 'true')",
-      args: []
-    });
+  const teamCount = Number((await db.execute("SELECT COUNT(*) as count FROM teams")).rows[0]?.count || 0);
+  if (teamCount === 0) {
+    console.log("📦 Auto-seeding initial teams into Turso DB...");
+    for (const tm of INITIAL_TEAMS) await upsertTeam(tm);
   }
 
-  console.log("✅ Turso / libSQL Database schema initialized successfully.");
+  const projectCount = Number((await db.execute("SELECT COUNT(*) as count FROM projects")).rows[0]?.count || 0);
+  if (projectCount === 0) {
+    console.log("📦 Auto-seeding initial projects into Turso DB...");
+    for (const prj of INITIAL_PROJECTS) await upsertProject(prj);
+  }
+
+  const taskCount = Number((await db.execute("SELECT COUNT(*) as count FROM tasks")).rows[0]?.count || 0);
+  if (taskCount === 0) {
+    console.log("📦 Auto-seeding initial tasks into Turso DB...");
+    for (const tsk of INITIAL_TASKS) await upsertTask(tsk);
+  }
+
+  const docCount = Number((await db.execute("SELECT COUNT(*) as count FROM documents")).rows[0]?.count || 0);
+  if (docCount === 0) {
+    console.log("📦 Auto-seeding initial documents into Turso DB...");
+    for (const doc of INITIAL_DOCUMENTS) await upsertDocument(doc);
+  }
+
+  const chatCount = Number((await db.execute("SELECT COUNT(*) as count FROM chat_messages")).rows[0]?.count || 0);
+  if (chatCount === 0 && INITIAL_CHAT && Array.isArray(INITIAL_CHAT)) {
+    console.log("📦 Auto-seeding initial chat messages into Turso DB...");
+    for (const msg of INITIAL_CHAT) await upsertChatMessage(msg);
+  }
+
+  console.log("✅ Turso / libSQL Database schema initialized & seeded successfully.");
 }
 
 export async function getAllDbData() {
