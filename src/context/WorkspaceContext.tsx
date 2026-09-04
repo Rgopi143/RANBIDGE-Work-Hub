@@ -136,7 +136,7 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     if (saved !== null) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       } catch (e) {}
     }
     return fallback;
@@ -159,23 +159,27 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
   // Sync state from Turso Database on mount
   useEffect(() => {
     fetch('/api/db/data')
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP status ${res.status}`);
+        return res.json();
+      })
       .then(result => {
-        if (result.success && result.data) {
-          if (Array.isArray(result.data.employees)) setEmployees(result.data.employees);
-          if (Array.isArray(result.data.teams)) setTeams(result.data.teams);
-          if (Array.isArray(result.data.projects)) setProjects(result.data.projects);
-          if (Array.isArray(result.data.tasks)) setTasks(result.data.tasks);
-          if (Array.isArray(result.data.attendance)) setAttendance(result.data.attendance);
-          if (Array.isArray(result.data.leaves)) setLeaves(result.data.leaves);
-          if (Array.isArray(result.data.payroll)) setPayroll(result.data.payroll);
-          if (Array.isArray(result.data.kpis)) setKpis(result.data.kpis);
-          if (Array.isArray(result.data.announcements)) setAnnouncements(result.data.announcements);
-          if (Array.isArray(result.data.documents)) setDocuments(result.data.documents);
+        if (result && result.success && result.data) {
+          if (Array.isArray(result.data.employees) && result.data.employees.length > 0) setEmployees(result.data.employees);
+          if (Array.isArray(result.data.teams) && result.data.teams.length > 0) setTeams(result.data.teams);
+          if (Array.isArray(result.data.projects) && result.data.projects.length > 0) setProjects(result.data.projects);
+          if (Array.isArray(result.data.tasks) && result.data.tasks.length > 0) setTasks(result.data.tasks);
+          if (Array.isArray(result.data.attendance) && result.data.attendance.length > 0) setAttendance(result.data.attendance);
+          if (Array.isArray(result.data.leaves) && result.data.leaves.length > 0) setLeaves(result.data.leaves);
+          if (Array.isArray(result.data.payroll) && result.data.payroll.length > 0) setPayroll(result.data.payroll);
+          if (Array.isArray(result.data.kpis) && result.data.kpis.length > 0) setKpis(result.data.kpis);
+          if (Array.isArray(result.data.announcements) && result.data.announcements.length > 0) setAnnouncements(result.data.announcements);
+          if (Array.isArray(result.data.documents) && result.data.documents.length > 0) setDocuments(result.data.documents);
+          if (Array.isArray(result.data.chatMessages) && result.data.chatMessages.length > 0) setChatMessages(result.data.chatMessages);
         }
       })
       .catch(err => {
-        console.log('Local storage persistence fallback active:', err);
+        console.warn('DB sync fallback active:', err);
       });
   }, []);
 

@@ -24,6 +24,8 @@ import {
   deleteTaskDb,
   upsertDocument,
   deleteDocumentDb,
+  upsertChatMessage,
+  deleteChatMessageDb,
   clearNotificationsForRoleDb,
   getNotificationsByRoleDb
 } from './db';
@@ -54,7 +56,7 @@ function getAIEngine(): GoogleGenAI {
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
   app.use(express.json());
 
@@ -86,6 +88,7 @@ async function startServer() {
       const data = await getAllDbData();
       res.json({ success: true, data });
     } catch (err: any) {
+      console.error("Error fetching DB data, returning error:", err.message);
       res.status(500).json({ success: false, error: err.message });
     }
   });
@@ -179,6 +182,25 @@ async function startServer() {
   app.delete('/api/db/documents/:id', async (req, res) => {
     try {
       await deleteDocumentDb(req.params.id);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Chat CRUD
+  app.post('/api/db/chat', async (req, res) => {
+    try {
+      await upsertChatMessage(req.body);
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.delete('/api/db/chat/:id', async (req, res) => {
+    try {
+      await deleteChatMessageDb(req.params.id);
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });

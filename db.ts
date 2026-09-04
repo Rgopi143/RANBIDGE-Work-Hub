@@ -219,99 +219,130 @@ export async function initializeDatabaseSchema(): Promise<void> {
 }
 
 export async function getAllDbData() {
-  const db = getDbClient();
-  await initializeDatabaseSchema();
+  const {
+    INITIAL_EMPLOYEES,
+    INITIAL_TEAMS,
+    INITIAL_PROJECTS,
+    INITIAL_TASKS,
+    INITIAL_ATTENDANCE,
+    INITIAL_LEAVES,
+    INITIAL_PAYROLL,
+    INITIAL_KPIS,
+    INITIAL_ANNOUNCEMENTS,
+    INITIAL_DOCUMENTS,
+    INITIAL_CHAT
+  } = await import('./src/data/mockData');
 
-  const employeesRes = await db.execute("SELECT * FROM employees");
-  const teamsRes = await db.execute("SELECT * FROM teams");
-  const projectsRes = await db.execute("SELECT * FROM projects");
-  const tasksRes = await db.execute("SELECT * FROM tasks");
-  const attendanceRes = await db.execute("SELECT * FROM attendance");
-  const leavesRes = await db.execute("SELECT * FROM leaves");
-  const payrollRes = await db.execute("SELECT * FROM payroll");
-  const kpisRes = await db.execute("SELECT * FROM kpis");
-  const announcementsRes = await db.execute("SELECT * FROM announcements");
-  const documentsRes = await db.execute("SELECT * FROM documents");
-  const chatRes = await db.execute("SELECT * FROM chat_messages");
+  try {
+    const db = getDbClient();
+    await initializeDatabaseSchema();
 
-  const parsedEmployees = employeesRes.rows.map((row: any) => {
-    if (row.avatar && typeof row.avatar === 'string' && row.avatar.startsWith('{')) {
-      try {
-        return JSON.parse(row.avatar);
-      } catch (e) {}
-    }
-    return {
-      id: row.id,
-      name: row.name,
-      email: row.email,
-      photo: row.avatar || '',
-      gender: row.gender || 'Male',
-      dob: row.dob || '1995-01-01',
-      mobile: row.mobile || '',
-      address: row.address || '',
-      department: row.department || '',
-      designation: row.designation || '',
-      skills: typeof row.skills === 'string' ? (row.skills.startsWith('[') ? JSON.parse(row.skills) : row.skills.split(',')) : (row.skills || []),
-      experience: row.experience || '1 Year',
-      joiningDate: row.joiningDate || '',
-      reportingManagerId: 'EMP-003',
-      reportingManagerName: 'Amit Patel',
-      salary: row.salary || 100000,
-      shiftTiming: row.shiftTiming || '09:30 AM - 06:30 PM',
-      employmentType: row.employmentType || 'Full-Time',
-      status: row.status || 'Active',
-      documents: typeof row.documents === 'string' ? (row.documents.startsWith('{') ? JSON.parse(row.documents) : {}) : (row.documents || {}),
-      faceIdEnrollment: row.faceIdEnrollment || undefined
-    };
-  });
+    const employeesRes = await db.execute("SELECT * FROM employees");
+    const teamsRes = await db.execute("SELECT * FROM teams");
+    const projectsRes = await db.execute("SELECT * FROM projects");
+    const tasksRes = await db.execute("SELECT * FROM tasks");
+    const attendanceRes = await db.execute("SELECT * FROM attendance");
+    const leavesRes = await db.execute("SELECT * FROM leaves");
+    const payrollRes = await db.execute("SELECT * FROM payroll");
+    const kpisRes = await db.execute("SELECT * FROM kpis");
+    const announcementsRes = await db.execute("SELECT * FROM announcements");
+    const documentsRes = await db.execute("SELECT * FROM documents");
+    const chatRes = await db.execute("SELECT * FROM chat_messages");
 
-  const parsedTasks = tasksRes.rows.map((row: any) => {
-    if (row.comments && typeof row.comments === 'string' && row.comments.startsWith('{')) {
-      try {
-        return JSON.parse(row.comments);
-      } catch (e) {}
-    }
-    let parsedComments: any[] = [];
-    if (row.comments && typeof row.comments === 'string' && row.comments.startsWith('[')) {
-      try { parsedComments = JSON.parse(row.comments); } catch (e) {}
-    }
-    let parsedAttachments: any[] = [];
-    if (row.tags && typeof row.tags === 'string') {
-      if (row.tags.startsWith('[')) {
-        try { parsedAttachments = JSON.parse(row.tags); } catch (e) {}
-      } else {
-        parsedAttachments = row.tags.split(',').filter(Boolean);
+    const parsedEmployees = employeesRes.rows.map((row: any) => {
+      if (row.avatar && typeof row.avatar === 'string' && row.avatar.startsWith('{')) {
+        try {
+          return JSON.parse(row.avatar);
+        } catch (e) {}
       }
-    }
-    return {
-      id: row.id,
-      name: row.title || row.name || 'Untitled Task',
-      description: row.description || '',
-      assignedEmployeeId: row.assignedEmployeeId || '',
-      assignedEmployeeName: row.assignedEmployeeName || '',
-      projectId: row.projectId || '',
-      projectName: row.projectName || '',
-      deadline: row.deadline || '',
-      priority: row.priority || 'Medium',
-      status: row.status || 'To Do',
-      attachments: parsedAttachments,
-      comments: parsedComments
-    };
-  });
+      return {
+        id: row.id,
+        name: row.name,
+        email: row.email,
+        photo: row.avatar || '',
+        gender: row.gender || 'Male',
+        dob: row.dob || '1995-01-01',
+        mobile: row.mobile || '',
+        address: row.address || '',
+        department: row.department || '',
+        designation: row.designation || '',
+        skills: typeof row.skills === 'string' ? (row.skills.startsWith('[') ? JSON.parse(row.skills) : row.skills.split(',')) : (row.skills || []),
+        experience: row.experience || '1 Year',
+        joiningDate: row.joiningDate || '',
+        reportingManagerId: 'EMP-003',
+        reportingManagerName: 'Amit Patel',
+        salary: row.salary || 100000,
+        shiftTiming: row.shiftTiming || '09:30 AM - 06:30 PM',
+        employmentType: row.employmentType || 'Full-Time',
+        status: row.status || 'Active',
+        documents: typeof row.documents === 'string' ? (row.documents.startsWith('{') ? JSON.parse(row.documents) : {}) : (row.documents || {}),
+        faceIdEnrollment: row.faceIdEnrollment || undefined
+      };
+    });
 
-  return {
-    employees: parsedEmployees,
-    teams: teamsRes.rows,
-    projects: projectsRes.rows,
-    tasks: parsedTasks,
-    attendance: attendanceRes.rows,
-    leaves: leavesRes.rows,
-    payroll: payrollRes.rows,
-    kpis: kpisRes.rows,
-    announcements: announcementsRes.rows,
-    documents: documentsRes.rows,
-    chatMessages: chatRes.rows
-  };
+    const parsedTasks = tasksRes.rows.map((row: any) => {
+      if (row.comments && typeof row.comments === 'string' && row.comments.startsWith('{')) {
+        try {
+          return JSON.parse(row.comments);
+        } catch (e) {}
+      }
+      let parsedComments: any[] = [];
+      if (row.comments && typeof row.comments === 'string' && row.comments.startsWith('[')) {
+        try { parsedComments = JSON.parse(row.comments); } catch (e) {}
+      }
+      let parsedAttachments: any[] = [];
+      if (row.tags && typeof row.tags === 'string') {
+        if (row.tags.startsWith('[')) {
+          try { parsedAttachments = JSON.parse(row.tags); } catch (e) {}
+        } else {
+          parsedAttachments = row.tags.split(',').filter(Boolean);
+        }
+      }
+      return {
+        id: row.id,
+        name: row.title || row.name || 'Untitled Task',
+        description: row.description || '',
+        assignedEmployeeId: row.assignedEmployeeId || '',
+        assignedEmployeeName: row.assignedEmployeeName || '',
+        projectId: row.projectId || '',
+        projectName: row.projectName || '',
+        deadline: row.deadline || '',
+        priority: row.priority || 'Medium',
+        status: row.status || 'To Do',
+        attachments: parsedAttachments,
+        comments: parsedComments
+      };
+    });
+
+    return {
+      employees: parsedEmployees.length > 0 ? parsedEmployees : INITIAL_EMPLOYEES,
+      teams: teamsRes.rows.length > 0 ? teamsRes.rows : INITIAL_TEAMS,
+      projects: projectsRes.rows.length > 0 ? projectsRes.rows : INITIAL_PROJECTS,
+      tasks: parsedTasks.length > 0 ? parsedTasks : INITIAL_TASKS,
+      attendance: attendanceRes.rows.length > 0 ? attendanceRes.rows : INITIAL_ATTENDANCE,
+      leaves: leavesRes.rows.length > 0 ? leavesRes.rows : INITIAL_LEAVES,
+      payroll: payrollRes.rows.length > 0 ? payrollRes.rows : INITIAL_PAYROLL,
+      kpis: kpisRes.rows.length > 0 ? kpisRes.rows : INITIAL_KPIS,
+      announcements: announcementsRes.rows.length > 0 ? announcementsRes.rows : INITIAL_ANNOUNCEMENTS,
+      documents: documentsRes.rows.length > 0 ? documentsRes.rows : INITIAL_DOCUMENTS,
+      chatMessages: chatRes.rows.length > 0 ? chatRes.rows : INITIAL_CHAT
+    };
+  } catch (err) {
+    console.warn("⚠️ Turso DB offline or fetch failed, returning initial state:", err);
+    return {
+      employees: INITIAL_EMPLOYEES,
+      teams: INITIAL_TEAMS,
+      projects: INITIAL_PROJECTS,
+      tasks: INITIAL_TASKS,
+      attendance: INITIAL_ATTENDANCE,
+      leaves: INITIAL_LEAVES,
+      payroll: INITIAL_PAYROLL,
+      kpis: INITIAL_KPIS,
+      announcements: INITIAL_ANNOUNCEMENTS,
+      documents: INITIAL_DOCUMENTS,
+      chatMessages: INITIAL_CHAT
+    };
+  }
 }
 
 export async function upsertDocument(doc: any) {
